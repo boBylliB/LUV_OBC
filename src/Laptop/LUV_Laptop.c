@@ -1,3 +1,11 @@
+/* LUV Laptop Main Loop
+*
+* Author: Sam Sandelin (2/27/2024)
+* Purpose: This file is the jumping off point for the code running on the laptop.
+*		   It houses the main running loop and any other core functionality needed to get the rest of the codebase running.
+*/
+
+#include "settings.h"
 #include "RC_Handler.h"
 
 int main() {
