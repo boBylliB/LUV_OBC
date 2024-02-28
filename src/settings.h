@@ -25,3 +25,8 @@
 // Units: radians/second
 #define MAXTURN 2*MAXSPEED/WHEELWIDTH
 #define SAFETYLIMITEDTURN MAXTURN*SAFETYLIMITEDSPEED/MAXSPEED
+
+// Control and conversion factors
+// Units: feet/second per 1 unit of input
+#define XINPUTTOTURNRATE MAXTURN
+#define YINPUTTOSPEED MAXSPEED
