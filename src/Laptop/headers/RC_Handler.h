@@ -1,3 +1,6 @@
+#ifndef RC_HANDLER_H
+#define RC_HANDLER_H
+
 /*RC Command Handler
 *
 * Author: April Paltrineri
@@ -16,3 +19,5 @@ float convertToDriveSpeed(float yInput);
 void processRemoteControlSignals(int signal, float* axis);
 
 void RC_Handler(int remote_control_signal, float* turnDrive);
+
+#endif
