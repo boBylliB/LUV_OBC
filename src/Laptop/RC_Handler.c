@@ -12,14 +12,14 @@
 // Function to convert x-axis inputs to turn rate
 float convertToTurnRate(float xInput) {
     // Conversion logic for turn rate calculation
-    float turnRate = xInput * (float)2.0; // Example conversion formula
+    float turnRate = xInput * (float)(XINPUTTOTURNRATE); // Example conversion formula
     return turnRate;
 }
 
 // Function to convert y-axis inputs to drive speed
 float convertToDriveSpeed(float yInput) {
     // Conversion logic for drive speed calculation
-    float driveSpeed = yInput * (float)1.5; // Example conversion formula
+    float driveSpeed = yInput * (float)(YINPUTTOSPEED); // Example conversion formula
     return driveSpeed;
 }
 
