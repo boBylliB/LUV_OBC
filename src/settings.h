@@ -1,7 +1,7 @@
-/* LUV Laptop Settings & Defines
+/* Settings & Defines
 *
 * Author: Sam Sandelin (2/27/2024)
-* Purpose: Houses general settings, constants, and macros, not specific to any particular file in the laptop codebase.
+* Purpose: Houses general settings, constants, and macros, not specific to any particular file in the codebase.
 */
 
 // Including the math library
