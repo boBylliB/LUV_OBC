@@ -11,7 +11,7 @@ int main() {
 	// int lastUSCommand = 0;
 	float lastMotorCommands[4] = {};
 
-	bool running = true;
+	int running = 1;
 
 	while (running) {
 		// Get data from IMU (and communicate to RF Transceiver in future)
