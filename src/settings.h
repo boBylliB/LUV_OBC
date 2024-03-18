@@ -38,7 +38,7 @@
 #define SBUSTIMEOUT 50
 
 // GPIO Pins for PWM Controller
-// Numbers I guess
+// Numbers I guess???
 //Pin 14
 #define PWM0 EHRPWM1A 
 //Pin 16 
@@ -47,3 +47,11 @@
 #define PWM2 EHRPWM2B
 //Pin 19
 #define PWM3 EHRPWM2A
+// reverse motor direction 0 
+#define ReversePWM0 MMC1_DAT6 
+//reverse motor direction 1
+#define ReversePWM1 MMC1_DAT7 
+//reverse motor direction 2
+#define ReversePWM2 MMC1_DAT2 
+//reverse motor direction 3
+#define ReversePWM3 MMC1_DAT3 
