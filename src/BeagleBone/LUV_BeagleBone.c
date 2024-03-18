@@ -12,6 +12,11 @@ int main() {
 	// int lastUSCommand = 0;
 	float lastMotorCommands[4] = {};
 
+	// Create SBUS controller
+	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_CONFIG_PINS);
+	uint16_t channels_out[16];
+	int missedPacketCount = 0;
+
 	int running = 1;
 
 	while (running) {
@@ -35,9 +40,25 @@ int main() {
 
 		// Output PWM to motors
 		// MotorController(lastMotorCommands);
-                printf("Lets goooo\n");
-                running = 0;
+
+		// === TEMPORARY MVP ===
+		// Get SBUS data from RC receiver
+		int SBUSStatus = sbus_read(SBUSControl, channels_out);
+		if (SBUSStatus < 0) {
+			missedPacketCount++;
+			perror("Error in SBUS: ");
+		}
+		else
+			missedPacketCount = 0;
+		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
+			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
+			running = false;
+		}
+		// Convert SBUS into motor control signals
+		// Output PWM to motors
 	}
+
+	sbus_close(SBUSControl);
 
 	return 0;
 }

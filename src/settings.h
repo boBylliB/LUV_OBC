@@ -31,6 +31,12 @@
 #define XINPUTTOTURNRATE MAXTURN
 #define YINPUTTOSPEED MAXSPEED
 
+// SBUS settings
+#define SBUSUART 1
+#define SBUSMAXMISSEDPACKETS 10
+// Units: milliseconds
+#define SBUSTIMEOUT 50
+
 // GPIO Pins for PWM Controller
 // Numbers I guess
 //Pin 14
