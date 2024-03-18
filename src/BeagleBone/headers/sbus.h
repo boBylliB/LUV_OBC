@@ -38,6 +38,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
 
 // --------------------------------------------------
 // Interface

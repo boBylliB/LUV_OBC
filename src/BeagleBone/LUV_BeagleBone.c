@@ -6,6 +6,7 @@
 */
 
 #include "settings.h"
+#include "sbus.h"
 
 int main() {
 	// int lastUSCommand = 0;
@@ -34,6 +35,8 @@ int main() {
 
 		// Output PWM to motors
 		// MotorController(lastMotorCommands);
+                printf("Lets goooo\n");
+                running = 0;
 	}
 
 	return 0;
