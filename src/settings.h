@@ -30,3 +30,14 @@
 // Units: feet/second per 1 unit of input
 #define XINPUTTOTURNRATE MAXTURN
 #define YINPUTTOSPEED MAXSPEED
+
+// GPIO Pins for PWM Controller
+// Numbers I guess
+//Pin 14
+#define PWM0 EHRPWM1A 
+//Pin 16 
+#define PWM1 EHRPWM1B
+//Pin 13
+#define PWM2 EHRPWM2B
+//Pin 19
+#define PWM3 EHRPWM2A
