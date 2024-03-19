@@ -5,8 +5,6 @@ Ideally once this project is done I might run through, clean things up, and make
 
 ## Contains:
 - Source code for the software running on the OBC
-- Any build / autogen / compilation scripts required to convert from source code to software on the OBC
-- Software, code, scripts, or other necessary files for the Docker sim environment
-- Guides and documentation
-
-iuasgkhasbdkvhbskaelfkshgafjhkasd
+- Any build / autogen / compilation scripts required to convert from source code to software on the OBC (just Makefile for now)
+  - To build the code, cd into the src directory and run "make luvbeaglebone" or "make luvlaptop" for the beaglebone or laptop, respectively
+- Guides and documentation (will be added in the future, doxygen maybe????? not sure yet)

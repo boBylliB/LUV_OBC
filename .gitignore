@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Built files
+src/luvbeaglebone
+src/luvlaptop
+
+# Object files
+*.o
+
 # User-specific files
 *.rsuser
 *.suo
