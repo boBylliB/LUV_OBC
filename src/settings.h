@@ -48,10 +48,10 @@
 //Pin 19
 #define PWM3 EHRPWM2A
 // reverse motor direction 0 
-#define ReversePWM0 MMC1_DAT6 
+#define REVERSEPWM0 MMC1_DAT6 
 //reverse motor direction 1
-#define ReversePWM1 MMC1_DAT7 
+#define REVERSEPWM1 MMC1_DAT7 
 //reverse motor direction 2
-#define ReversePWM2 MMC1_DAT2 
+#define REVERSEPWM2 MMC1_DAT2 
 //reverse motor direction 3
-#define ReversePWM3 MMC1_DAT3 
+#define REVERSEPWM3 MMC1_DAT3 

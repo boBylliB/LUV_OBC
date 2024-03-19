@@ -7,10 +7,13 @@
 
 #include "settings.h"
 #include "sbus.h"
+#include "PWMControl.h"
+#include "SimplifiedMovement.h"
 
 int main() {
 	// int lastUSCommand = 0;
 	float lastMotorCommands[4] = {};
+	float motorControl[2] = {};
 
 	// Create SBUS controller
 	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_CONFIG_PINS);
@@ -47,15 +50,22 @@ int main() {
 		if (SBUSStatus < 0) {
 			missedPacketCount++;
 			perror("Error in SBUS: ");
+			continue;
 		}
-		else
+		else {
 			missedPacketCount = 0;
+			// Convert SBUS into motor control signals
+			SBUS2Move(channels_out, motorControl)
+		}
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
 			running = false;
+			// Force stop
+			motorControl[0] = 0;
+			motorControl[1] = 0;
 		}
-		// Convert SBUS into motor control signals
 		// Output PWM to motors
+		OutputPWM(motorControl);
 	}
 
 	sbus_close(SBUSControl);
