@@ -6,42 +6,67 @@
 *
 * Edited: Sam Sandelin (3/19/2024)
 *****/
-#include <mraa/pwm.h>
 #include <stdio.h>
 #include "settings.h"
-#include "PWM.h"
+#include "PWMControl.h"
 
-int convertPowerToPWM(int power_level) {
-    return (power_level * 255); // Convert power level (-1 to 1) to duty cycle (-255 to 255)
-}
-void drivePWM(int dutyCycle, unsigned int reversePin, unsigned int pwmPin) {
-    // series of if statements to determine what direction we're going in and initiaties? the pins 
-    if (dutyCycle < 0) {
-        dutyCycle *= -1; // inverting to output a positive number
-        mraa_pwm_init(reversePin, 1); //Reverse motor by setting the reverse pin to high
-        mraa_pwm_init(pwmPin); //EHRPWM1A, Pin 14 Left
-    }
-    else {
-        mraa_pwm_init(pwmPin); //EHRPWM1A, Pin 14 Left
+void convertPWMPower(PWMData* pwm, float* power) {
+    for (int idx = 0; idx < 2; idx++) {
+        if (power[0] < 0) {
+            pwm->reverse[idx] = 1;
+            pwm->power[idx] = power[0] * -1;
+        }
+        else {
+            pwm->reverse[idx] = 0;
+            pwm->power[idx] = power[0];
+        }
+        pwm->power[idx] = pwm->power[idx] > 1 ? 1 : pwm->power[idx];
     }
 }
 
-void OutputPWM(float* power) {
-    int dutyCycle[2];
-    
-    //GPIO Pin stuff
-    mraa_pwm_context pwm; 
-    mraa_gpio_dir(PWM0, MRAA_GPIO_OUT); //sets the pins to be outputs???
-    mraa_gpio_dir(PWM1, MRAA_GPIO_OUT);
-    mraa_gpio_dir(PWM2, MRAA_GPIO_OUT);
-    mraa_gpio_dir(PWM3, MRAA_GPIO_OUT);
-    
-    //Gets duty cycle for each power input
-    for (int idx = 0; idx < 2; idx++)
-        dutyCycle[idx] = convertPowerToPWM(power[idx]);
-    
-    drivePWM(dutyCycle[0], REVERSEPWM0, PWM0);
-    drivePWM(dutyCycle[0], REVERSEPWM1, PWM1);
-    drivePWM(dutyCycle[1], REVERSEPWM2, PWM2);
-    drivePWM(dutyCycle[1], REVERSEPWM3, PWM3);
+void drivePWM(const PWMData* pwm) {
+    char buffer[BUFFERSIZE];
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", sprintf(buffer, "%d", pwm->power[0] * pwm->periodNS));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", sprintf(buffer, "%d", pwm->power[1] * pwm->periodNS));
+}
+
+int setPWMOutput(const char* filepath, const char* value) {
+    FILE* fp = NULL;
+    fp = fopen(filepath, "a");
+    if (fp != NULL) {
+        fputs(value, fp);
+        return 1;
+    }
+    else
+        return 0;
+}
+
+void OutputPWM(PWMData* pwm, float* power) {
+    if (pwm->enabled) {
+        convertPWMPower(pwm, power);
+        drivePWM(pwm);
+    }
+}
+void EnablePWM(PWMData* pwm, int periodNS = DEFAULTPERIODNS) {
+    pwm->periodNS = periodNS;
+    pwm->enabled = 1;
+    // Initialize power levels to 0 for safety
+    pwm->power[0] = 0;
+    pwm->reverse[0] = 0;
+    pwm->power[1] = 0;
+    pwm->reverse[1] = 0;
+    // Setup outputs
+    char buffer[BUFFERSIZE];
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/period", sprintf(buffer, "%d", periodNS));
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", sprintf(buffer, "%d", 0));
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", sprintf(buffer, "%d", 1));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/period", sprintf(buffer, "%d", periodNS));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", sprintf(buffer, "%d", 0));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", sprintf(buffer, "%d", 1));
+}
+void DisablePWM(PWMData* pwm) {
+    pwm->enabled = 0;
+    char buffer[BUFFERSIZE];
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", sprintf(buffer, "%d", 0));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", sprintf(buffer, "%d", 0));
 }

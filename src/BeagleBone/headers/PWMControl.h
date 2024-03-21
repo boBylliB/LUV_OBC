@@ -10,8 +10,24 @@
 * Edited: Sam Sandelin (3/19/2024)
 *****/
 
-int convertPowerToPWM(int power_level);
-void drivePWM(int dutyCycle, unsigned int reversePin, unsigned int pwmPin);
-void OutputPWM(float* power);
+typedef struct {
+	float power[2];
+
+	unsigned int periodNS;
+
+	unsigned short int reverse[2];
+
+	unsigned short int enabled;
+} PWMData;
+
+/* Internal functions */
+void convertPWMPower(PWMData* pwm, float* power);
+void drivePWM(const PWMData* pwm);
+void setPWMOutput(const char* filepath, const char* value);
+
+/* External functions */
+void OutputPWM(PWMData* pwm, float* power);
+void EnablePWM(PWMData* pwm, int periodNS = DEFAULTPERIODNS);
+void DisablePWM(PWMData* pwm);
 
 #endif

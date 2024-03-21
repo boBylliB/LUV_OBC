@@ -37,21 +37,20 @@
 // Units: milliseconds
 #define SBUSTIMEOUT 50
 
+// GPIO stuff
+#define GPIOFolder "/sys/class/gpio"
+#define PWMFolder "/sys/class/pwm"
+
 // GPIO Pins for PWM Controller
-// Numbers I guess???
-//Pin 14
-#define PWM0 EHRPWM1A 
-//Pin 16 
-#define PWM1 EHRPWM1B
-//Pin 13
-#define PWM2 EHRPWM2B
-//Pin 19
-#define PWM3 EHRPWM2A
-// reverse motor direction 0 
-#define REVERSEPWM0 MMC1_DAT6 
-//reverse motor direction 1
-#define REVERSEPWM1 MMC1_DAT7 
-//reverse motor direction 2
-#define REVERSEPWM2 MMC1_DAT2 
-//reverse motor direction 3
-#define REVERSEPWM3 MMC1_DAT3 
+#define DEFAULTPERIODNS 1000000
+// EHRPWM1A, Pin 9.14
+#define PWMLEFT pwm3
+// EHRPWM2A, Pin 8.19
+#define PWMRIGHT pwm5
+// MMC1_DAT6
+#define REVERSEPWMLEFT P8_3
+// MMC1_DAT7
+#define REVERSEPWMRIGHT P8_4
+
+// Miscellaneous Defines
+#define BUFFERSIZE 256
