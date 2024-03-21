@@ -1,29 +1,36 @@
+IDIR = headers
 BIDIR = BeagleBone/headers
 LIDIR = Laptop/headers
 CC = gcc
-BCFLAGS = -I $(BIDIR) -I .
-LCFLAGS = -I $(LIDIR) -I .
+CFLAGS = -I $(IDIR)
+BCFLAGS = -I $(BIDIR) -I $(IDIR)
+LCFLAGS = -I $(LIDIR) -I $(IDIR)
 
+ODIR = ./
 BODIR = BeagleBone
 LODIR = Laptop
 LDIR = ../lib
 
 LIBS = -lm
 
-_BDEPS = 
+_BDEPS = PWMControl.h sbus.h SimplifiedMovement.h
 BDEPS = $(patsubst %,$(BIDIR)/%,$(_BDEPS))
-_LDEPS = RC_Handler.h Movement_Controller.h PID.h
+_LDEPS = RC_Handler.h Movement_Controller.h
 LDEPS = $(patsubst %,$(LIDIR)/%,$(_LDEPS))
 
-_BOBJ = LUV_BeagleBone.o
-BOBJ = $(patsubst %,$(BODIR)/%,$(_BOBJ))
-_LOBJ = LUV_Laptop.o RC_Handler.o Movement_Controller.o PID.o
-LOBJ = $(patsubst %,$(LODIR)/%,$(_LOBJ))
+_OBJ = PID.o
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+_BOBJ = LUV_BeagleBone.o PWMControl.o SimplifiedMovement.o
+BOBJ = $(patsubst %,$(BODIR)/%,$(_BOBJ)) $(OBJ)
+_LOBJ = LUV_Laptop.o RC_Handler.o Movement_Controller.o
+LOBJ = $(patsubst %,$(LODIR)/%,$(_LOBJ)) $(OBJ)
 
 $(BODIR)/%.o: BeagleBone/%.c $(BDEPS)
 	$(CC) -c -o $@ $< $(BCFLAGS)
 $(LODIR)/%.o: Laptop/%.c $(LDEPS)
 	$(CC) -c -o $@ $< $(LCFLAGS)
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 luvbeaglebone: $(BOBJ)
 	$(CC) -o $@ $^ $(BCFLAGS) $(LIBS)
