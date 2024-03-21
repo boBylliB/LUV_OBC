@@ -23,7 +23,7 @@ typedef struct {
 } PIDData;
 
 // Used to more easily initialize the PIDData struct
-void initializePIDData(PIDData* data, float kp, float ki, float kd, float limit = 0, float proportionalLimit = 0, float integralLimit = 0, float derivativeLimit = 0);
+void initializePIDData(PIDData* data, float kp, float ki, float kd, float limit, float proportionalLimit, float integralLimit, float derivativeLimit);
 
 // Get the response of the PID controller to a given error
 float getPIDResponse(PIDData* data, float error);

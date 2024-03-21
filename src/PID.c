@@ -7,7 +7,7 @@
 #include "PID.h"
 
 // Used to more easily initialize the PIDData struct
-void initializePIDData(PIDData* data, float kp, float ki, float kd, float limit = 0, float proportionalLimit = 0, float integralLimit = 0, float derivativeLimit = 0) {
+void initializePIDData(PIDData* data, float kp, float ki, float kd, float limit, float proportionalLimit, float integralLimit, float derivativeLimit) {
 	data->kp = kp;
 	data->ki = ki;
 	data->kd = kd;
@@ -31,7 +31,7 @@ float getPIDResponse(PIDData* data, float error) {
 		prop = -data->proportionalLimit;
 
 	data->integral += error;
-	float integ = data->ki * integral;
+	float integ = data->ki * data->integral;
 	if (data->integralLimit > 0 && integ > data->integralLimit)
 		integ = data->integralLimit;
 	else if (data->integralLimit > 0 && integ < -data->integralLimit)

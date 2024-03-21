@@ -23,11 +23,11 @@ typedef struct {
 /* Internal functions */
 void convertPWMPower(PWMData* pwm, float* power);
 void drivePWM(const PWMData* pwm);
-void setPWMOutput(const char* filepath, const char* value);
+int setPWMOutput(const char* filepath, const char* value);
 
 /* External functions */
 void OutputPWM(PWMData* pwm, float* power);
-void EnablePWM(PWMData* pwm, int periodNS = DEFAULTPERIODNS);
+void EnablePWM(PWMData* pwm, int periodNS);
 void DisablePWM(PWMData* pwm);
 
 #endif

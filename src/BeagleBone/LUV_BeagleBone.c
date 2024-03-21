@@ -20,6 +20,10 @@ int main() {
 	uint16_t channels_out[16];
 	int missedPacketCount = 0;
 
+        // Setup PWM outputs
+        PWMData pwm;
+        EnablePWM(&pwm, DEFAULTPERIODNS);
+
 	int running = 1;
 
 	while (running) {
@@ -65,9 +69,10 @@ int main() {
 			motorControl[1] = 0;
 		}
 		// Output PWM to motors
-		OutputPWM(motorControl);
+		OutputPWM(&pwm, motorControl);
 	}
 
+        DisablePWM(&pwm);
 	sbus_close(SBUSControl);
 
 	return 0;

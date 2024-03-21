@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define INPUTRANGE = 32768 //defines the input range we could get from channels, came up enough to warrent a define
+#define INPUTRANGE 32768 //defines the input range we could get from channels, came up enough to warrent a define
 
 //Beginning of subfunctions
 float normalizeChannel(float channel) {

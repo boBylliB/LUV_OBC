@@ -26,8 +26,10 @@ void convertPWMPower(PWMData* pwm, float* power) {
 
 void drivePWM(const PWMData* pwm) {
     char buffer[BUFFERSIZE];
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", sprintf(buffer, "%d", pwm->power[0] * pwm->periodNS));
-    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", sprintf(buffer, "%d", pwm->power[1] * pwm->periodNS));
+    sprintf(buffer, "%d", (int)(pwm->power[0] * pwm->periodNS));
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", buffer);
+    sprintf(buffer, "%d", (int)(pwm->power[1] * pwm->periodNS));
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", buffer);
 }
 
 int setPWMOutput(const char* filepath, const char* value) {
@@ -38,7 +40,9 @@ int setPWMOutput(const char* filepath, const char* value) {
         return 1;
     }
     else {
-        perror("ERROR in setting %s!", filepath);
+        char buffer[BUFFERSIZE];
+        sprintf(buffer, "ERROR in setting %s!", filepath);
+        perror(buffer);
         return 0;
     }
 }
@@ -49,7 +53,7 @@ void OutputPWM(PWMData* pwm, float* power) {
         drivePWM(pwm);
     }
 }
-void EnablePWM(PWMData* pwm, int periodNS = DEFAULTPERIODNS) {
+void EnablePWM(PWMData* pwm, int periodNS) {
     pwm->periodNS = periodNS;
     pwm->enabled = 1;
     // Initialize power levels to 0 for safety
@@ -59,16 +63,24 @@ void EnablePWM(PWMData* pwm, int periodNS = DEFAULTPERIODNS) {
     pwm->reverse[1] = 0;
     // Setup outputs
     char buffer[BUFFERSIZE];
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/period", sprintf(buffer, "%d", periodNS));
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", sprintf(buffer, "%d", 0));
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", sprintf(buffer, "%d", 1));
-    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/period", sprintf(buffer, "%d", periodNS));
-    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", sprintf(buffer, "%d", 0));
-    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", sprintf(buffer, "%d", 1));
+    sprintf(buffer, "%d", periodNS);
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/period", buffer);
+    sprintf(buffer, "%d", 0);
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", buffer);
+    sprintf(buffer, "%d", 1);
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", buffer);
+    sprintf(buffer, "%d", periodNS);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/period", buffer);
+    sprintf(buffer, "%d", 0);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", buffer);
+    sprintf(buffer, "%d", 1);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", buffer);
 }
 void DisablePWM(PWMData* pwm) {
     pwm->enabled = 0;
     char buffer[BUFFERSIZE];
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", sprintf(buffer, "%d", 0));
-    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", sprintf(buffer, "%d", 0));
+    sprintf(buffer, "%d", 0);
+    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", buffer);
+    sprintf(buffer, "%d", 0);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", buffer);
 }
