@@ -55,7 +55,7 @@ int main() {
 		else {
 			missedPacketCount = 0;
 			// Convert SBUS into motor control signals
-			SBUS2Move(channels_out, motorControl)
+			SBUS2Move(channels_out, motorControl);
 		}
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
