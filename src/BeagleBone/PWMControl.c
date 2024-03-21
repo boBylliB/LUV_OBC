@@ -37,8 +37,10 @@ int setPWMOutput(const char* filepath, const char* value) {
         fputs(value, fp);
         return 1;
     }
-    else
+    else {
+        perror("ERROR in setting %s!", filepath);
         return 0;
+    }
 }
 
 void OutputPWM(PWMData* pwm, float* power) {
