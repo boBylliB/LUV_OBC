@@ -1,0 +1,44 @@
+	// Including the necessary libraries for input/output operations.
+#include <iostream>
+#include <vector>
+#include <string>
+ 
+// Using a namespace to prevent potential naming conflicts and to logically group
+// associated functionalities.
+namespace SPortTranslator {
+ 
+    /**
+    * @brief Converts input data into S.Port format.
+    *
+    * This function takes a vector of integers as input and converts it into a string
+    * in the S.Port format, which is commonly used in RC (Radio Control) applications.
+    *
+    * @param data Vector of integers representing the input data.
+    * @return std::string The input data converted into S.Port format.
+    */
+    std::string ConvertToSPortFormat(const std::vector<int>& data) {
+        std::string sPortData = "$";
+        
+        // Adding each integer from the input vector to the S.Port data string.
+        for (int num : data) {
+            sPortData += std::to_string(num) + ",";
+        }
+        
+        // Removing the trailing comma and adding the end character.
+        sPortData.pop_back();
+        sPortData += "#";
+ 
+        return sPortData;
+    }
+}
+ 
+int main() {
+    // Example usage of the SPortTranslator::ConvertToSPortFormat function.
+    std::vector<int> inputData = {10, 20, 30, 40, 50};
+    std::string sPortFormattedData = SPortTranslator::ConvertToSPortFormat(inputData);
+ 
+    // Displaying the converted data in S.Port format.
+    std::cout << "Input data in S.Port format: " << sPortFormattedData << std::endl;
+ 
+    return 0;
+}
