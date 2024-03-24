@@ -1,0 +1,41 @@
+// Including the necessary libraries for serial communication.
+#include <iostream>
+#include <string>
+ 
+// Using a namespace to prevent potential naming conflicts and to logically group
+// associated functionalities.
+namespace DataTranslation {
+ 
+    /**
+    * @class SerialDataTranslator
+    * Translates data from S.Port format to serial format.
+    */
+    class SerialDataTranslator {
+    public:
+        /**
+        * Translates data from S.Port format to serial format.
+        *
+        * @param sPortData The data in S.Port format to be translated.
+        * @return std::string The translated data in serial format.
+        */
+        std::string TranslateToSerial(const std::string& sPortData) {
+            // Implementation of the translation logic from S.Port to serial format.
+            // This can involve parsing, processing, and formatting the data accordingly.
+            std::string serialData = "Translated: " + sPortData; // Placeholder translation
+ 
+            return serialData;
+        }
+    };
+}
+ 
+int main() {
+    // Example: Translating S.Port data to serial format
+    {
+        DataTranslation::SerialDataTranslator translator;
+        std::string sPortData = "S.Port Data: 12345";
+        std::string serialData = translator.TranslateToSerial(sPortData);
+        std::cout << "Translated Serial Data: " << serialData << std::endl;
+    }
+ 
+    return 0;
+}
