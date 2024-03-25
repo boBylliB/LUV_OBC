@@ -22,8 +22,8 @@ float normalizeChannel(float channel) {
 
 void SBUS2Move(uint16_t* channels, float* motorControl) {
 	// We know from the SBUS definition that there are 16 channels
-	float turnRate = normalizeChannel(channels[0]); //Channel 0 should correspond to a horizontal axis input
-	float driveSpeed = normalizeChannel(channels[1]); //Channel 1 should correspond to a vertical axis input
+	float driveSpeed = normalizeChannel(channels[0]); //Channel 0 should correspond to a vertical axis input
+	float turnRate = normalizeChannel(channels[1]); //Channel 1 should correspond to a horizontal axis input
 
 	// Convert to motor control signals (left and right side)
 	motorControl[0] = driveSpeed - turnRate / 2;

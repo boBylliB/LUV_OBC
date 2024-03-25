@@ -37,6 +37,7 @@ int setPWMOutput(const char* filepath, const char* value) {
     fp = fopen(filepath, "a");
     if (fp != NULL) {
         fputs(value, fp);
+        fclose(fp);
         return 1;
     }
     else {
