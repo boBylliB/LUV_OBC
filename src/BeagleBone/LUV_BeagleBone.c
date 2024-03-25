@@ -19,7 +19,11 @@ int main() {
     time_t startTime = time(NULL);
 
 	// Create SBUS controller
+    fprintf(stderr, "Flag 1\n");
 	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_CONFIG_PINS);
+    if (SBUSControl == NULL)
+        fprintf(stderr, "SBUSControl is null!!!\n");
+    fprintf(stderr, "Flag 2\n");
 	uint16_t channels_out[16];
 	int missedPacketCount = 0;
 
@@ -53,7 +57,9 @@ int main() {
 
 		// === TEMPORARY MVP ===
 		// Get SBUS data from RC receiver
+        fprintf(stderr, "Flag 3\n");
         int SBUSStatus = sbus_read(SBUSControl, channels_out);
+        fprintf(stderr, "Flag 4\n");
 		if (SBUSStatus < 0) {
 			missedPacketCount++;
 			perror("Error in SBUS: ");
@@ -65,6 +71,7 @@ int main() {
 			// Convert SBUS into motor control signals
 			SBUS2Move(channels_out, motorControl);
 		}
+        fprintf(stderr, "Flag 5\n");
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
 			running = false;
@@ -72,6 +79,7 @@ int main() {
 			motorControl[0] = 0;
 			motorControl[1] = 0;
 		}
+        fprintf(stderr, "Flag 6\n");
 		// Output PWM to motors
         /*motorControl[0] = (time(NULL) - startTime) % 2;
         motorControl[1] = (time(NULL) - startTime + 1) % 2;
@@ -79,9 +87,11 @@ int main() {
 */        fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
         if (time(NULL) > startTime + 10)
             running = 0;
+        fprintf(stderr, "Flag 7\n");
 	}
 
     //DisablePWM(&pwm);
+    fprintf(stderr, "Flag 8\n");
 	sbus_close(SBUSControl);
 
 	return 0;

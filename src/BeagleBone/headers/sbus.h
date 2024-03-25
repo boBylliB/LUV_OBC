@@ -137,6 +137,7 @@ int decode_packet(uint8_t* packet, uint16_t* channels_out);
 sbus_t* sbus_new(int uart_no, int timeout_ms, uint8_t flags) {
     if (flags & SBUS_CONFIG_PINS) {
         if (0 != config_pins(uart_no)) {
+            fprintf(stderr, "config_pins fail\n");
             return NULL;
         }
     }
@@ -145,11 +146,13 @@ sbus_t* sbus_new(int uart_no, int timeout_ms, uint8_t flags) {
 
     int fd = open_uart(uart_no, blocking);
     if (fd < 0) {
+        fprintf(stderr, "open_uart fail\n");
         return NULL;
     }
 
     sbus_t* sbus = (sbus_t*)malloc(sizeof(sbus_t));
     if (!sbus) {
+        fprintf(stderr, "malloc fail\n");
         return NULL;
     }
 
@@ -166,22 +169,31 @@ sbus_t* sbus_new(int uart_no, int timeout_ms, uint8_t flags) {
 
 int sbus_read(sbus_t* sbus, uint16_t* channels_out) {
     struct timespec now;
+    fprintf(stderr, "SBUS 1, %d\n", sbus->fd);
     clock_gettime(CLOCK_MONOTONIC_RAW, &now);
-    uint64_t delta_ms = (now.tv_sec - sbus->packet_start.tv_sec) * 1000 +
-        (now.tv_nsec - sbus->packet_start.tv_nsec) / 1000000;
+    fprintf(stderr, "SBUS 2\n");
+    uint64_t delta_ms_a = (now.tv_sec - sbus->packet_start.tv_sec) * 1000;
+    fprintf(stderr, "SBUS 2.1\n");
+    uint64_t delta_ms = delta_ms_a + (now.tv_nsec - sbus->packet_start.tv_nsec) / 1000000;
+    /*uint64_t delta_ms = (now.tv_sec - sbus->packet_start.tv_sec) * 1000 +
+        (now.tv_nsec - sbus->packet_start.tv_nsec) / 1000000;*/
+    fprintf(stderr, "SBUS 2.5\n");
 
     // If packet has timed out, just reset the buffer.
     if (delta_ms > sbus->timeout_ms) {
         sbus->buffer_ix = 0;
     }
 
+    fprintf(stderr, "SBUS 3\n");
     int to_read = 25 - sbus->buffer_ix;
     ssize_t count = read(sbus->fd, sbus->buffer + sbus->buffer_ix, to_read);
+    fprintf(stderr, "SBUS 4\n");
     if (count <= 0) {
         errno = count == 0 ? EAGAIN : errno;
         return -1;
     }
 
+    fprintf(stderr, "SBUS 5\n");
     if (sbus->buffer_ix == 0) {
         // search for the HEADER byte.
         for (int i = 0; i < count; i++) {
@@ -206,6 +218,7 @@ int sbus_read(sbus_t* sbus, uint16_t* channels_out) {
         sbus->buffer_ix += count;
     }
 
+    fprintf(stderr, "SBUS 6\n");
     if (sbus->buffer_ix == 25) {
         // we have a full packet, now we must decode it.
         sbus->buffer_ix = 0;
@@ -354,7 +367,7 @@ int config_pins(int uart_no) {
 
 int open_uart(int uart_no, bool blocking) {
     char tty_dev[256];
-    snprintf(tty_dev, 256, "/dev/ttyO%d", uart_no);
+    snprintf(tty_dev, 256, "/dev/ttyS%d", uart_no);
     int fd = open(tty_dev, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         return -1;
