@@ -7,6 +7,7 @@
 * Edited: Sam Sandelin (3/19/2024)
 *****/
 #include <stdio.h>
+#include <stdlib.h>
 #include "settings.h"
 #include "PWMControl.h"
 
@@ -62,6 +63,11 @@ void EnablePWM(PWMData* pwm, int periodNS) {
     pwm->reverse[0] = 0;
     pwm->power[1] = 0;
     pwm->reverse[1] = 0;
+    // Configure PWM pins
+    if (0 != system("config-pin P9_14 pwm"))
+        fprintf(stderr, "Error configuring P9_14 as pwm!\n");
+    if (0 != system("config-pin P8_19 pwm"))
+        fprintf(stderr, "Error configuring P8_19 as pwm!\n");
     // Setup outputs
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", periodNS);

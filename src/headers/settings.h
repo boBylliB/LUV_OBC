@@ -32,8 +32,9 @@
 #define YINPUTTOSPEED MAXSPEED
 
 // SBUS settings
+#define SBUSPOLLDELAYMS 1
 #define SBUSUART 4
-#define SBUSMAXMISSEDPACKETS 10
+#define SBUSMAXMISSEDPACKETS 10000
 #define SUDO_ASKPASS 1
 // Units: milliseconds
 #define SBUSTIMEOUT 50

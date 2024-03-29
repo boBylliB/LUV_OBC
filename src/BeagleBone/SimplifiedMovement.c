@@ -11,12 +11,15 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define INPUTRANGE 32768 //defines the input range we could get from channels, came up enough to warrent a define
+#define MININPUT 172 //defines the input range we could get from channels, came up enough to warrent a define
+#define MAXINPUT 1811
 
 //Beginning of subfunctions
 float normalizeChannel(float channel) {
-	float signCheck = channel - INPUTRANGE;
-	float finalChannel = signCheck / INPUTRANGE;
+    float inputRange = MAXINPUT - MININPUT;
+    float midpoint = inputRange/2 + MININPUT;
+	float signCheck = channel - midpoint;
+	float finalChannel = 2*(signCheck / inputRange);
 	return finalChannel;
 }
 
@@ -26,6 +29,14 @@ void SBUS2Move(uint16_t* channels, float* motorControl) {
 	float turnRate = normalizeChannel(channels[1]); //Channel 1 should correspond to a horizontal axis input
 
 	// Convert to motor control signals (left and right side)
-	motorControl[0] = driveSpeed - turnRate / 2;
-	motorControl[1] = driveSpeed + turnRate / 2;
+	motorControl[0] = driveSpeed + turnRate;
+	motorControl[1] = driveSpeed - turnRate;
+    if (motorControl[0] > 1)
+        motorControl[0] = 1;
+    else if (motorControl[0] < -1)
+        motorControl[0] = -1;
+    if (motorControl[1] > 1)
+        motorControl[1] = 1;
+    else if (motorControl[1] < -1)
+        motorControl[1] = -1;
 }

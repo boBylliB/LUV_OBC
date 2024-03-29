@@ -16,16 +16,19 @@ int main() {
 	float lastMotorCommands[4] = {};
 	float motorControl[2] = {};
 
-    time_t startTime = time(NULL);
+    struct timespec prevTime;
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &prevTime);
+
+    uint64_t running_ns = 0;
 
 	// Create SBUS controller
-    fprintf(stderr, "Flag 1\n");
-	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_CONFIG_PINS);
+	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, 0 /*SBUS_NONBLOCKING*/);
     if (SBUSControl == NULL)
         fprintf(stderr, "SBUSControl is null!!!\n");
-    fprintf(stderr, "Flag 2\n");
 	uint16_t channels_out[16];
 	int missedPacketCount = 0;
+    uint64_t sbusTimer = 0;
 
     // Setup PWM outputs
     /*PWMData pwm;
@@ -34,6 +37,11 @@ int main() {
 	int running = 1;
 
 	while (running) {
+        clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+        uint64_t delta_ns = (now.tv_sec - prevTime.tv_sec) * 1000000000 + (now.tv_nsec - prevTime.tv_nsec);
+        clock_gettime(CLOCK_MONOTONIC_RAW, &prevTime);
+        running_ns += delta_ns;
+
 		// Get data from IMU (and communicate to RF Transceiver in future)
 		// int IMUPacket = getIMUData();
 
@@ -57,21 +65,7 @@ int main() {
 
 		// === TEMPORARY MVP ===
 		// Get SBUS data from RC receiver
-        fprintf(stderr, "Flag 3\n");
-        int SBUSStatus = sbus_read(SBUSControl, channels_out);
-        fprintf(stderr, "Flag 4\n");
-		if (SBUSStatus < 0) {
-			missedPacketCount++;
-			perror("Error in SBUS: ");
-			continue;
-		}
-		else {
-			missedPacketCount = 0;
-            fprintf(stderr, "Channels = %d, %d\n", channels_out[0], channels_out[1]);
-			// Convert SBUS into motor control signals
-			SBUS2Move(channels_out, motorControl);
-		}
-        fprintf(stderr, "Flag 5\n");
+        sbusTimer += delta_ns;
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
 			running = false;
@@ -79,19 +73,34 @@ int main() {
 			motorControl[0] = 0;
 			motorControl[1] = 0;
 		}
-        fprintf(stderr, "Flag 6\n");
+        if (sbusTimer >= SBUSPOLLDELAYMS * 1000000) {
+            sbusTimer = 0;
+            int SBUSStatus = sbus_read(SBUSControl, channels_out);
+		    if (SBUSStatus < 0) {
+			    missedPacketCount++;
+			    //perror("Error in SBUS: ");
+			    continue;
+		    }
+		    else {
+			    missedPacketCount = 0;
+//                fprintf(stderr, "Channels = ");
+//                for (int idx = 0; idx < 16; idx++)
+//                    fprintf(stderr, "%d, ", channels_out[idx]);
+//                fprintf(stderr, "\n");
+			    // Convert SBUS into motor control signals
+			    SBUS2Move(channels_out, motorControl);
+		    }
+        }
 		// Output PWM to motors
         /*motorControl[0] = (time(NULL) - startTime) % 2;
         motorControl[1] = (time(NULL) - startTime + 1) % 2;
 		OutputPWM(&pwm, motorControl);
 */        fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
-        if (time(NULL) > startTime + 10)
+        if (running_ns > 10 * (uint64_t)1000000000)
             running = 0;
-        fprintf(stderr, "Flag 7\n");
 	}
 
     //DisablePWM(&pwm);
-    fprintf(stderr, "Flag 8\n");
 	sbus_close(SBUSControl);
 
 	return 0;
