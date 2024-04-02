@@ -28,7 +28,7 @@ void convertPWMPower(PWMData* pwm, float* power) {
 void drivePWM(const PWMData* pwm) {
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", (int)(pwm->power[0] * pwm->periodNS));
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", buffer);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/duty_cycle", buffer);
     sprintf(buffer, "%d", (int)(pwm->power[1] * pwm->periodNS));
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/duty_cycle", buffer);
 }
@@ -64,18 +64,18 @@ void EnablePWM(PWMData* pwm, int periodNS) {
     pwm->power[1] = 0;
     pwm->reverse[1] = 0;
     // Configure PWM pins
-    if (0 != system("config-pin P9_14 pwm"))
-        fprintf(stderr, "Error configuring P9_14 as pwm!\n");
-    if (0 != system("config-pin P8_19 pwm"))
-        fprintf(stderr, "Error configuring P8_19 as pwm!\n");
+    if (0 != system("config-pin P9_16 pwm"))
+        fprintf(stderr, "Error configuring P9_16 as pwm!\n");
+    if (0 != system("config-pin P8_13 pwm"))
+        fprintf(stderr, "Error configuring P8_13 as pwm!\n");
     // Setup outputs
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", periodNS);
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/period", buffer);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/period", buffer);
     sprintf(buffer, "%d", 0);
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/duty_cycle", buffer);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/duty_cycle", buffer);
     sprintf(buffer, "%d", 1);
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", buffer);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/enable", buffer);
     sprintf(buffer, "%d", periodNS);
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/period", buffer);
     sprintf(buffer, "%d", 0);
@@ -87,7 +87,7 @@ void DisablePWM(PWMData* pwm) {
     pwm->enabled = 0;
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", 0);
-    setPWMOutput("/sys/class/pwm/pwmchip3/pwm0/enable", buffer);
+    setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/enable", buffer);
     sprintf(buffer, "%d", 0);
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm0/enable", buffer);
 }

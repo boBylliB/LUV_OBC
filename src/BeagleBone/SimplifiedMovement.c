@@ -31,6 +31,7 @@ void SBUS2Move(uint16_t* channels, float* motorControl) {
 	// Convert to motor control signals (left and right side)
 	motorControl[0] = driveSpeed + turnRate;
 	motorControl[1] = driveSpeed - turnRate;
+    // Clamp within bounds
     if (motorControl[0] > 1)
         motorControl[0] = 1;
     else if (motorControl[0] < -1)
@@ -39,4 +40,9 @@ void SBUS2Move(uint16_t* channels, float* motorControl) {
         motorControl[1] = 1;
     else if (motorControl[1] < -1)
         motorControl[1] = -1;
+    // Check for deadzone
+    if (motorControl[0] < DEADZONE && motorControl[0] > -DEADZONE)
+        motorControl[0] = 0;
+    if (motorControl[1] < DEADZONE && motorControl[1] > -DEADZONE)
+        motorControl[1] = 0;
 }

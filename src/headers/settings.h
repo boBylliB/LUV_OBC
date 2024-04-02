@@ -16,6 +16,7 @@
 #define WHEELWIDTH 3
 
 // Safety limits and operating bounds
+#define DEADZONE 0.1
 // Units: radians
 #define MAXPITCH 20.0*DEGTORAD
 #define MAXROLL 20.0*DEGTORAD

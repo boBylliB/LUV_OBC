@@ -176,17 +176,20 @@ int sbus_read(sbus_t* sbus, uint16_t* channels_out) {
     if (delta_ms > sbus->timeout_ms) {
         sbus->buffer_ix = 0;
     }
-
+    fprintf(stderr, "fuck you\n");
     int to_read = 25 - sbus->buffer_ix;
     ssize_t count = read(sbus->fd, sbus->buffer + sbus->buffer_ix, to_read);
+    fprintf(stderr, "read %d\n", count);
     if (count <= 0) {
         errno = count == 0 ? EAGAIN : errno;
+        fprintf(stderr, "AAAAHHHHHHFHASDFASFDASHVAESFASDFASDGFAS\n");
         return -1;
     }
-
+    fprintf(stderr, "Right before reading header\n");
     if (sbus->buffer_ix == 0) {
         // search for the HEADER byte.
         for (int i = 0; i < count; i++) {
+            fprintf(stderr, "buffer: %d\n", sbus->buffer[i]);
             if (sbus->buffer[i] == SBUS_HEADER) {
                 // found the header; throw away everything in the buffer up to this point
 
