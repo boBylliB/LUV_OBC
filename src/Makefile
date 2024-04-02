@@ -13,6 +13,8 @@ LDIR = ../lib
 
 LIBS = -lm
 
+_DEPS = settings.h PID.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _BDEPS = PWMControl.h sbus.h SimplifiedMovement.h
 BDEPS = $(patsubst %,$(BIDIR)/%,$(_BDEPS))
 _LDEPS = RC_Handler.h Movement_Controller.h
