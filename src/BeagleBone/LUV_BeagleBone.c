@@ -23,18 +23,18 @@ int main() {
     uint64_t running_ns = 0;
 
 	// Create SBUS controller
-	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, 0 /*SBUS_NONBLOCKING*/);
+	sbus_t* SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_NONBLOCKING);
     if (SBUSControl == NULL)
         fprintf(stderr, "SBUSControl is null!!!\n");
 	uint16_t channels_out[16];
 	int missedPacketCount = 0;
     uint64_t sbusTimer = 0;
+    uint64_t missedPacketTimer = 0;
+    uint64_t sbusPollDelay = SBUSPOLLDELAYMS * 1000000;
 
     // Setup PWM outputs
     PWMData pwm;
-    fprintf(stderr, "Enabling PWM\n");
     EnablePWM(&pwm, DEFAULTPERIODNS);
-    fprintf(stderr, "Enabled PWM\n");
 
 	int running = 1;
 
@@ -67,33 +67,61 @@ int main() {
 
 		// === TEMPORARY MVP ===
 		// Get SBUS data from RC receiver
-        fprintf(stderr, "Initializing main loop sequence\n");
         sbusTimer += delta_ns;
+        missedPacketTimer += delta_ns;
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
             // TODO: change force stop to attempt sbus restart
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
-			running = false;
-			// Force stop
+			// Force stop motors until SBUS restarts
 			motorControl[0] = 0;
 			motorControl[1] = 0;
-		}
-        if (sbusTimer >= SBUSPOLLDELAYMS * 1000000) {
+            // Close and reopen SBUS
+            fprintf(stderr, "Restarting SBUS...\n");
+            sbus_close(SBUSControl);
+	        SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_NONBLOCKING);
+            if (SBUSControl == NULL)
+                fprintf(stderr, "SBUSControl is null!!!\n");
+	        channels_out[16];
+	        missedPacketCount = 0;
+            missedPacketTimer = 0;
             sbusTimer = 0;
-            fprintf(stderr, "Attempting to read SBUS\n");
+		}
+        if (sbusTimer >= sbusPollDelay /* SBUSPOLLDELAYMS * 1000000 */) {
+            // If we've missed more than the acceptable max threshold, increase the poll delay
+//            if (missedPacketCount >= SBUSACCEPTABLEMISSEDPACKETS)
+//                sbusPollDelay += SBUSPOLLDELAYSHIFTMS * 1000000;
+            // If we've missed zero packets in a set time period, decrease the poll delay, as we may be lagging behind
+//            if (missedPacketTimer >= SBUSTIMETOMISSEDPACKETMS * 1000000)
+//                sbusPollDelay -= SBUSPOLLDELAYSHIFTMS * 1000000;
+            sbusTimer = 0;
             int SBUSStatus = sbus_read(SBUSControl, channels_out);
-            fprintf(stderr, "Read SBUS\n");
 		    if (SBUSStatus < 0) {
 			    missedPacketCount++;
-			    fprintf(stderr, "Error in SBUS");
+                missedPacketTimer = 0;
+			    perror("Error in SBUS: ");
 			    continue;
 		    }
 		    else {
-                // TODO: Check for all zeros, reset sbus if so
 			    missedPacketCount = 0;
                 fprintf(stderr, "Channels = ");
-                for (int idx = 0; idx < 16; idx++)
+                int allZeros = 1;
+                for (int idx = 0; idx < 16; idx++) {
                     fprintf(stderr, "%d, ", channels_out[idx]);
+                    if (channels_out[idx] != 0)
+                        allZeros = 0;
+                }
                 fprintf(stderr, "\n");
+                // Check for all zeros, and reset SBUS if so
+                if (allZeros) {
+                    fprintf(stderr, "Channels were all zero, restarting SBUS...\n");
+                    sbus_close(SBUSControl);
+	                SBUSControl = sbus_new(SBUSUART, SBUSTIMEOUT, SBUS_NONBLOCKING);
+                    if (SBUSControl == NULL)
+                        fprintf(stderr, "SBUSControl is null!!!\n");
+	                channels_out[16];
+	                missedPacketCount = 0;
+                    sbusTimer = 0;
+                }
 			    // Convert SBUS into motor control signals
 			    SBUS2Move(channels_out, motorControl);
 		    }
@@ -101,17 +129,14 @@ int main() {
 		// Output PWM to motors
         /*motorControl[0] = (time(NULL) - startTime) % 2;
         motorControl[1] = (time(NULL) - startTime + 1) % 2;*/
-        fprintf(stderr, "Setting PWM outputs\n");
 		OutputPWM(&pwm, motorControl);
         fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
         if (running_ns > 10 * (uint64_t)1000000000)
             running = 0;
 	}
 
-    //DisablePWM(&pwm);
+    DisablePWM(&pwm);
 	sbus_close(SBUSControl);
-
-    fprintf(stderr, "Main loop sequence terminated :(\n");
 
 	return 0;
 }
