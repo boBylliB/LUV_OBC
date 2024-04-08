@@ -49,14 +49,6 @@
 
 // GPIO Pins for PWM Controller
 #define DEFAULTPERIODNS 1000000
-// EHRPWM1A, Pin 9.14
-#define PWMLEFT pwm3
-// EHRPWM2A, Pin 8.19
-#define PWMRIGHT pwm5
-// MMC1_DAT6
-#define REVERSEPWMLEFT P8_3
-// MMC1_DAT7
-#define REVERSEPWMRIGHT P8_4
 
 // Miscellaneous Defines
 #define BUFFERSIZE 256
