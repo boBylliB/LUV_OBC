@@ -26,6 +26,8 @@ void convertPWMPower(PWMData* pwm, float* power) {
 }
 
 void drivePWM(const PWMData* pwm) {
+    setPWMOutput("/sys/class/gpio/gpio38/value", pwm->reverse[0] ? "1" : "0");
+    setPWMOutput("/sys/class/gpio/gpio39/value", pwm->reverse[1] ? "1" : "0");
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", (int)(pwm->power[0] * pwm->periodNS));
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/duty_cycle", buffer);
@@ -66,9 +68,15 @@ void EnablePWM(PWMData* pwm, int periodNS) {
     // Configure PWM pins
     if (0 != system("config-pin P9_16 pwm"))
         fprintf(stderr, "Error configuring P9_16 as pwm!\n");
-    if (0 != system("config-pin P8_13 pwm"))
-        fprintf(stderr, "Error configuring P8_13 as pwm!\n");
+    if (0 != system("config-pin P9_14 pwm"))
+        fprintf(stderr, "Error configuring P9_14 as pwm!\n");
+    if (0 != system("config-pin P8_03 gpio"))
+        fprintf(stderr, "Error configuring P8_03 as gpio!\n");
+    if (0 != system("config-pin P8_04 gpio"))
+        fprintf(stderr, "Error configuring P8_04 as gpio!\n");
     // Setup outputs
+    setPWMOutput("/sys/class/gpio/gpio38/direction", "out");
+    setPWMOutput("/sys/class/gpio/gpio39/direction", "out");
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", periodNS);
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/period", buffer);
@@ -85,6 +93,8 @@ void EnablePWM(PWMData* pwm, int periodNS) {
 }
 void DisablePWM(PWMData* pwm) {
     pwm->enabled = 0;
+    setPWMOutput("/sys/class/gpio/gpio38/value", "0");
+    setPWMOutput("/sys/class/gpio/gpio39/value", "0");
     char buffer[BUFFERSIZE];
     sprintf(buffer, "%d", 0);
     setPWMOutput("/sys/class/pwm/pwmchip5/pwm1/enable", buffer);
