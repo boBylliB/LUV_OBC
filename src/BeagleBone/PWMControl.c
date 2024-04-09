@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <string.h>
 #include "settings.h"
 #include "PWMControl.h"
 
@@ -30,6 +31,8 @@ void convertPWMPower(PWMData* pwm, float* power) {
                 desiredFlip = 1;
                 pwm->flipTimers[idx] = currentTime.tv_sec * 1000 + currentTime.tv_nsec / 1000000;
             }
+            else if (pwm->reverse[idx] == 0)
+                pwm->power[idx] = 0;
         }
         else {
             pwm->power[idx] = power[idx];
@@ -37,6 +40,8 @@ void convertPWMPower(PWMData* pwm, float* power) {
                 desiredFlip = 1;
                 pwm->flipTimers[idx] = currentTime.tv_sec * 1000 + currentTime.tv_nsec / 1000000;
             }
+            else if (pwm->reverse[idx] == 1)
+                pwm->power[idx] = 0;
         }
         // Set pwm power
         pwm->power[idx] = pwm->power[idx] > 1 ? 1 : pwm->power[idx];
@@ -74,11 +79,80 @@ int setPWMOutput(const char* filepath, const char* value) {
         return 0;
     }
 }
+/*void displayPWM(const PWMData* pwm) {
+    // Should look something like:
+    // +++|+++
+    //    |---
+    // ===|===
+    // ---|   
+    // +++|+++
+    // The above would be an example of PWMDISPLAYHEIGHT = 5 and PWMDISPLAYWIDTH = 7
+    // with left motor at -50% and right motor at +50%
+    system("clear");
+    char buffer[PWMDISPLAYHEIGHT * (PWMDISPLAYWIDTH + 1)];
+    char append[2] = " ";
+    buffer[0] = '\0';
+    int col = 0;
+    int correctRow = 0;
+    for (int row = 0; row < PWMDISPLAYHEIGHT; ++row) {
+        switch (row) {
+        case 0:
+        case PWMDISPLAYHEIGHT-1:
+            for (col = 0; col < PWMDISPLAYWIDTH; ++col) {
+                if (PWMDISPLAYWIDTH % 2 == 0 || col != PWMDISPLAYWIDTH / 2)
+                    strcat(buffer, "+");
+                else
+                    strcat(buffer, "|");
+            }
+            break;
+        case PWMDISPLAYHEIGHT/2:
+            if (PWMDISPLAYHEIGHT % 2 == 1) {
+                for (col = 0; col < PWMDISPLAYWIDTH; ++col) {
+                    if (PWMDISPLAYWIDTH % 2 == 0 || col != PWMDISPLAYWIDTH / 2)
+                        strcat(buffer, "=");
+                    else
+                        strcat(buffer, "|");
+                }
+                break;
+            }
+        default:
+            correctRow = (pwm->reverse[0] == 0 && row < PWMDISPLAYHEIGHT / 2) || (pwm->reverse[0] == 1 && row >= PWMDISPLAYHEIGHT / 2);
+            if (correctRow && (pwm->power[0] > row / (PWMDISPLAYHEIGHT / 2) && pwm->power[0] < (row + 1) / (PWMDISPLAYHEIGHT / 2)))
+                append[0] = '-';
+            else
+                append[0] = ' ';
+            for (col = 0; col < PWMDISPLAYWIDTH/2; ++col) {
+                strcat(buffer, append);
+            }
+            if (PWMDISPLAYWIDTH % 2 == 1) {
+                strcat(buffer, "|");
+                ++col;
+            }
+            correctRow = (pwm->reverse[1] == 0 && row < PWMDISPLAYHEIGHT / 2) || (pwm->reverse[1] == 1 && row >= PWMDISPLAYHEIGHT / 2);
+            if (correctRow && (pwm->power[1] > row / (PWMDISPLAYHEIGHT / 2) && pwm->power[1] < (row + 1) / (PWMDISPLAYHEIGHT / 2)))
+                append[0] = '-';
+            else
+                append[0] = ' ';
+            for (; col < PWMDISPLAYWIDTH; ++col) {
+                strcat(buffer, append);
+            }
+            break;
+        }
+        strcat(buffer, "\n");
+    }
+    fprintf(stderr, "%s", buffer);
+}*/
 
 void OutputPWM(PWMData* pwm, float* power) {
     if (pwm->enabled) {
         convertPWMPower(pwm, power);
         drivePWM(pwm);
+        struct timespec currentTime;
+        clock_gettime(CLOCK_MONOTONIC_RAW, &currentTime);
+        current_ms = currentTime.tv_sec * 1000 + currentTime.tv_nsec / 1000000;
+        if (current_ms % 200) {
+            displayPWM(pwm);
+        }
     }
 }
 void EnablePWM(PWMData* pwm, int periodNS) {

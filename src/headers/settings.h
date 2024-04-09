@@ -50,6 +50,8 @@
 // PWM Controller settings
 #define DEFAULTPERIODNS 100000
 #define FLIPTIMERMS 1000
+#define PWMDISPLAYHEIGHT 23
+#define PWMDISPLAYWIDTH 7
 
 // Miscellaneous Defines
 #define BUFFERSIZE 256

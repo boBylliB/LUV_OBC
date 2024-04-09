@@ -26,6 +26,7 @@ typedef struct {
 void convertPWMPower(PWMData* pwm, float* power);
 void drivePWM(const PWMData* pwm);
 int setPWMOutput(const char* filepath, const char* value);
+/*void displayPWM(const PWMData* pwm);*/
 
 /* External functions */
 void OutputPWM(PWMData* pwm, float* power);
