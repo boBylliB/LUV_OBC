@@ -147,12 +147,12 @@ void OutputPWM(PWMData* pwm, float* power) {
     if (pwm->enabled) {
         convertPWMPower(pwm, power);
         drivePWM(pwm);
-        struct timespec currentTime;
-        clock_gettime(CLOCK_MONOTONIC_RAW, &currentTime);
-        current_ms = currentTime.tv_sec * 1000 + currentTime.tv_nsec / 1000000;
-        if (current_ms % 200) {
-            displayPWM(pwm);
-        }
+        //struct timespec currentTime;
+        //clock_gettime(CLOCK_MONOTONIC_RAW, &currentTime);
+        //current_ms = currentTime.tv_sec * 1000 + currentTime.tv_nsec / 1000000;
+        //if (current_ms % 200) {
+        //    displayPWM(pwm);
+        //}
     }
 }
 void EnablePWM(PWMData* pwm, int periodNS) {
