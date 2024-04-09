@@ -177,9 +177,9 @@ int sbus_read(sbus_t* sbus, uint16_t* channels_out) {
         sbus->buffer_ix = 0;
     }
     int to_read = 25 - sbus->buffer_ix;
-    fprintf(stderr, "attempting to read from input serial buffer\n");
+//    fprintf(stderr, "attempting to read from input serial buffer\n");
     ssize_t count = read(sbus->fd, sbus->buffer + sbus->buffer_ix, to_read);
-    fprintf(stderr, "read %d from input serial buffer\n", count);
+//    fprintf(stderr, "read %d from input serial buffer\n", count);
     if (count <= 0) {
         errno = count == 0 ? EAGAIN : errno;
         return -1;
@@ -187,7 +187,7 @@ int sbus_read(sbus_t* sbus, uint16_t* channels_out) {
     if (sbus->buffer_ix == 0) {
         // search for the HEADER byte.
         for (int i = 0; i < count; i++) {
-            fprintf(stderr, "buffer: %d\n", sbus->buffer[i]);
+            //fprintf(stderr, "buffer: %d\n", sbus->buffer[i]);
             if (sbus->buffer[i] == SBUS_HEADER) {
                 // found the header; throw away everything in the buffer up to this point
 

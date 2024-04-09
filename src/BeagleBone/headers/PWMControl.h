@@ -18,6 +18,8 @@ typedef struct {
 	unsigned short int reverse[2];
 
 	unsigned short int enabled;
+
+    uint64_t flipTimers[2];
 } PWMData;
 
 /* Internal functions */

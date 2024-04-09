@@ -6,6 +6,7 @@
 */
 
 #include <time.h>
+#include <errno.h>
 #include "settings.h"
 #include "sbus.h"
 #include "PWMControl.h"
@@ -36,6 +37,14 @@ int main() {
     PWMData pwm;
     EnablePWM(&pwm, DEFAULTPERIODNS);
 
+    // Setup loop shutoff
+    if (0 != system("config-pin P9_41 gpio"))
+        fprintf(stderr, "Failed to set pin P9_41 as gpio!\n");
+    if (0 != system("config-pin P8_18 gpio"))
+        fprintf(stderr, "Failed to set pin P8_18 as gpio!\n");
+    setPWMOutput("/sys/class/gpio/gpio20/direction", "out");
+    setPWMOutput("/sys/class/gpio/gpio65/direction", "in");
+    setPWMOutput("/sys/class/gpio/gpio20/value", "1");
 	int running = 1;
 
 	while (running) {
@@ -98,15 +107,18 @@ int main() {
 		    if (SBUSStatus < 0) {
 			    missedPacketCount++;
                 missedPacketTimer = 0;
-			    perror("Error in SBUS: ");
+                if (errno != EAGAIN)
+			        perror("Error in SBUS: ");
+                if (missedPacketCount % 10 == 0)
+                    fprintf(stderr, "Missed packet count = %d out of %d\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
 			    continue;
 		    }
 		    else {
 			    missedPacketCount = 0;
-                fprintf(stderr, "Channels = ");
+//                fprintf(stderr, "Channels = ");
                 int allZeros = 1;
                 for (int idx = 0; idx < 16; idx++) {
-                    fprintf(stderr, "%d, ", channels_out[idx]);
+//                    fprintf(stderr, "%d, ", channels_out[idx]);
                     if (channels_out[idx] != 0)
                         allZeros = 0;
                 }
@@ -131,12 +143,25 @@ int main() {
         motorControl[1] = (time(NULL) - startTime + 1) % 2;*/
 		OutputPWM(&pwm, motorControl);
         fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
-        if (running_ns > 10 * (uint64_t)1000000000)
+//        if (running_ns > 10 * (uint64_t)1000000000)
+        FILE* fp = fopen("/sys/class/gpio/gpio65/value","r");
+        if (fp == NULL) {
+            fprintf(stderr, "FATAL ERROR: Cannot read gpio_46!\n");
             running = 0;
+        } else {
+            int val = 0;
+            fscanf(fp, "%d", &val);
+            if (val != 0) {
+                fprintf(stderr, "Detected a commanded stop via GPIO_20 and GPIO_61\n");
+                running = 0;
+            }
+            fclose(fp);
+        }
 	}
 
     DisablePWM(&pwm);
 	sbus_close(SBUSControl);
+    setPWMOutput("/sys/class/gpio/gpio20/value", "0");
 
 	return 0;
 }

@@ -36,7 +36,7 @@
 #define SBUSPOLLDELAYMS 1
 #define SBUSPOLLDELAYSHIFTMS 1
 #define SBUSUART 4
-#define SBUSMAXMISSEDPACKETS 10000
+#define SBUSMAXMISSEDPACKETS 100
 #define SBUSACCEPTABLEMISSEDPACKETS 10
 #define SBUSTIMETOMISSEDPACKETMS 10
 #define SUDO_ASKPASS 1
@@ -47,8 +47,9 @@
 #define GPIOFolder "/sys/class/gpio"
 #define PWMFolder "/sys/class/pwm"
 
-// GPIO Pins for PWM Controller
-#define DEFAULTPERIODNS 1000000
+// PWM Controller settings
+#define DEFAULTPERIODNS 100000
+#define FLIPTIMERMS 1000
 
 // Miscellaneous Defines
 #define BUFFERSIZE 256
