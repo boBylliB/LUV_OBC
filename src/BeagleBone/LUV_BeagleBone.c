@@ -135,7 +135,7 @@ int main() {
                     sbusTimer = 0;
                 }
 			    // Convert SBUS into motor control signals
-			    SBUS2Move(channels_out, motorControl);
+			    SBUS2Tank(channels_out, motorControl); // SBUS2Move or SBUS2Tank, same inputs, different control scheme
 		    }
         }
 		// Output PWM to motors

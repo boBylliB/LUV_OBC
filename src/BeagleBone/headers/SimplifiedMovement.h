@@ -12,5 +12,6 @@
 
 float normalizeChannel(float channel);
 void SBUS2Move(uint16_t* channels, float* motorControl);
+void SBUS2Tank(uint16_t* channels, float* motorControl);
 
 #endif

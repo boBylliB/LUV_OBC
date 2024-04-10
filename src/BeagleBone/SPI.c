@@ -4,7 +4,7 @@
 * Purpose: General purpose SPI communication implementation
 */
 
-#include "SPI.h"
+//#include "SPI.h"
 #include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>

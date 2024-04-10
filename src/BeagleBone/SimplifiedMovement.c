@@ -46,3 +46,27 @@ void SBUS2Move(uint16_t* channels, float* motorControl) {
     if (motorControl[1] < DEADZONE && motorControl[1] > -DEADZONE)
         motorControl[1] = 0;
 }
+
+void SBUS2Tank(uint16_t* channels, float* motorControl) {
+    // We know from the SBUS definition that there are 16 channels
+	float rightStick = normalizeChannel(channels[0]); //Channel 0 should correspond to a right stick vertical axis input
+	float leftStick = normalizeChannel(channels[2]); //Channel 2 should correspond to a left stick vertical axis input
+
+	// Convert to motor control signals (left and right side)
+	motorControl[0] = leftStick;
+	motorControl[1] = rightStick;
+    // Clamp within bounds
+    if (motorControl[0] > 1)
+        motorControl[0] = 1;
+    else if (motorControl[0] < -1)
+        motorControl[0] = -1;
+    if (motorControl[1] > 1)
+        motorControl[1] = 1;
+    else if (motorControl[1] < -1)
+        motorControl[1] = -1;
+    // Check for deadzone
+    if (motorControl[0] < DEADZONE && motorControl[0] > -DEADZONE)
+        motorControl[0] = 0;
+    if (motorControl[1] < DEADZONE && motorControl[1] > -DEADZONE)
+        motorControl[1] = 0;
+}
