@@ -44,8 +44,8 @@
 #define SBUSTIMEOUT 50
 
 // GPIO stuff
-#define GPIOFolder "/sys/class/gpio"
-#define PWMFolder "/sys/class/pwm"
+#define GPIOFOLDER "/sys/class/gpio"
+#define PWMFOLDER "/sys/class/pwm"
 
 // PWM Controller settings
 #define DEFAULTPERIODNS 100000
@@ -53,5 +53,14 @@
 #define PWMDISPLAYHEIGHT 23
 #define PWMDISPLAYWIDTH 7
 
-// Miscellaneous Defines
+// Miscellaneous defines
 #define BUFFERSIZE 256
+
+// Autostart defines
+#define CONTROLFILENAME "startstopcontrol"
+#define COMMANDFILENAME "startstopcommands"
+#define STANDARDWAITMS 50
+#define DEBUGFILENAME "startstopdebug"
+#define MAINSWSWITCHPINA "9_41"
+#define MAINSWSWITCHPINB "8_18"
+#define STARTUPLEDPIN "8_15"

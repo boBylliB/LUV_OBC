@@ -107,6 +107,8 @@ int main() {
 		    if (SBUSStatus < 0) {
 			    missedPacketCount++;
                 missedPacketTimer = 0;
+                // Shut off the received packet LED
+
                 if (errno != EAGAIN)
 			        perror("Error in SBUS: ");
                 if (missedPacketCount % 10 == 0)
@@ -115,6 +117,8 @@ int main() {
 		    }
 		    else {
 			    missedPacketCount = 0;
+                // Light the received packet LED
+
 //                fprintf(stderr, "Channels = ");
                 int allZeros = 1;
                 for (int idx = 0; idx < 16; idx++) {
@@ -142,7 +146,7 @@ int main() {
         /*motorControl[0] = (time(NULL) - startTime) % 2;
         motorControl[1] = (time(NULL) - startTime + 1) % 2;*/
 		OutputPWM(&pwm, motorControl);
-        fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
+        //fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
 //        if (running_ns > 10 * (uint64_t)1000000000)
         FILE* fp = fopen("/sys/class/gpio/gpio65/value","r");
         if (fp == NULL) {

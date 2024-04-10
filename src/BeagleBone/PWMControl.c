@@ -117,6 +117,8 @@ int setPWMOutput(const char* filepath, const char* value) {
             }
         default:
             correctRow = (pwm->reverse[0] == 0 && row < PWMDISPLAYHEIGHT / 2) || (pwm->reverse[0] == 1 && row >= PWMDISPLAYHEIGHT / 2);
+            minPower = (float)abs(row - PWMDISPLAYHEIGHT/2) / (PWMDISPLAYHEIGHT/2);
+            maxPower = (float)abs(row+1 - PWMDISPLAYHEIGHT/2) / (PWMDISPLAYHEIGHT/2);
             if (correctRow && (pwm->power[0] > row / (PWMDISPLAYHEIGHT / 2) && pwm->power[0] < (row + 1) / (PWMDISPLAYHEIGHT / 2)))
                 append[0] = '-';
             else
