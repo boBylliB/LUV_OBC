@@ -6,6 +6,7 @@
 # Built files
 src/luvbeaglebone
 src/luvlaptop
+src/a.out
 
 # Object files
 *.o
