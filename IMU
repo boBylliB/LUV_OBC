@@ -1,0 +1,68 @@
+/*/////////////////////////////////////////////////////////////
+This script is for L.U.V.'s IMU interface
+Last updated: 03/26/24
+*//////////////////////////////////////////////////////////////
+#include <stdio.h>
+
+int main()
+{
+    printf("Please take it easy, this actually is my first rodeo");
+
+    return 0;
+}
+
+/*/////////////////////////////////////////////////////////////
+#load libraries?
+Unclear if syntax will work, library is loaded as a git copy
+Library links:
+https://github.com/adafruit/Adafruit_BNO08x
+https://github.com/adafruit/Adafruit_Sensor
+https://github.com/adafruit/Adafruit_BusIO
+*///////////////////////////////////////////////////////////////
+
+//Adafruit_BNO08x bno08x(BNO08X_RESET) code from example script
+//sh2_SensorValue_t sensorValue      < what are these doing? (what da dog doin?)
+
+#include <Adafruit_BNO08x.h>
+
+//GPIO 12 - CS
+#define BNO08X_CS 60
+
+//GPIO 20 - INT
+#define BNO08X_INT 20
+
+//GPIO 48 - RST
+#define BNO08X_RESET 48
+
+//Read IMU Gyro
+//Sensor Value is Raw because IMU is not calibrated
+void loop() {
+  delay(5);
+  
+  switch (sensorValue.sensorId) {
+    case SH2_GYROSCOPE_UNCALIBRATED:
+        println("Gyro X Y Z")
+        //print(" x: ");
+        Println(sensorValue.un.rawGyroscope.x);
+        //print(" y: ");
+        Println(sensorValue.un.rawGyroscope.y);
+        //print(" z: ");
+        Println(sensorValue.un.rawGyroscope.z);
+    break;    
+  }
+
+//Read IMU Acc
+//Sensor Value is Raw because IMU is not calibrated
+  switch (sensorValue.sensorId) {
+    case SH2_GYROSCOPE_UNCALIBRATED:
+        println("Gyro X Y Z")
+        //print(" x: ");
+        Println(sensorValue.un.rawAccelerometer.x);
+        //print(" y: ");
+        Println(sensorValue.un.rawAccelerometer.y);
+        //print(" z: ");
+        Println(sensorValue.un.rawAccelerometer.z);
+    break;    
+  }
+
+}
