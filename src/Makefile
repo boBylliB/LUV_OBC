@@ -9,7 +9,6 @@ LCFLAGS = -I $(LIDIR) -I $(IDIR)
 ODIR = ./
 BODIR = BeagleBone
 LODIR = Laptop
-LDIR = ../lib
 
 LIBS = -lm
 
