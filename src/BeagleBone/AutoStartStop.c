@@ -15,6 +15,8 @@
 *		   is the entry point for standard operation
 *		   Due to that purpose, it basically needs to be foolproof, and the easiest way to do that is via the KISS principle and a
 *		   shit-ton of built-in self tests
+*		   This is also why it tries to be as self-contained as possible, as whenever practical I want to avoid changes from the main
+*		   code affecting this
 */
 
 /* Each instance of this code will generate a "command" file
