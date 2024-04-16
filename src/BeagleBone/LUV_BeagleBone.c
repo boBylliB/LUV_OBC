@@ -11,6 +11,10 @@
 #include "sbus.h"
 #include "PWMControl.h"
 #include "SimplifiedMovement.h"
+#include "BNO08X.h"
+#include "GPIOLookup.h"
+#include "GPIOControl.h"
+#include "Quaternion.h"
 
 int main() {
 	// int lastUSCommand = 0;
@@ -36,6 +40,29 @@ int main() {
     // Setup PWM outputs
     PWMData pwm;
     EnablePWM(&pwm, DEFAULTPERIODNS);
+
+    // Setup IMU
+    BNO08x imuControl;
+    sh2_SensorValue_t sensorReport;
+    Quaternion_t quaternion;
+    if (0 != system("config-pin P9_15 gpio"))
+        fprintf(stderr, "Failed to set pin P9_15 as gpio!\n");
+    if (0 != system("config-pin P9_17 gpio"))
+        fprintf(stderr, "Failed to set pin P9_17 as gpio!\n");
+    if (0 != system("config-pin P9_19 gpio"))
+        fprintf(stderr, "Failed to set pin P9_19 as gpio!\n");
+    if (!begin_SPI(&imuControl, GetGPIONumber(9, 17), GetGPIONumber(9, 19), GetGPIONumber(9, 15), 0))
+        fprintf(stderr, "Failed to begin SPI!\n");
+    if (!enableReport(&imuControl, 0x08, 10000))
+        fprintf(stderr, "Failed to enable the Game Rotation Vector report!\n");
+
+    if (0 != system("config-pin P9_12 gpio"))
+        fprintf(stderr, "Failed to set pin P9_12 as gpio!\n");
+    uint8_t packetLED = -1;
+    if (!GetGPIONumber(9, 12))
+        fprintf(stderr, "Failed to get GPIO number for P9_12!\n");
+    if (!SetGPIO(packetLED, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P9_12!\n");
 
     // Setup loop shutoff
     if (0 != system("config-pin P9_41 gpio"))
@@ -108,7 +135,8 @@ int main() {
 			    missedPacketCount++;
                 missedPacketTimer = 0;
                 // Shut off the received packet LED
-
+                if (!SetGPIO(packetLED, VALUE, "0"))
+                    fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
                 if (errno != EAGAIN)
 			        perror("Error in SBUS: ");
                 if (missedPacketCount % 10 == 0)
@@ -118,7 +146,8 @@ int main() {
 		    else {
 			    missedPacketCount = 0;
                 // Light the received packet LED
-
+                if (!SetGPIO(packetLED, VALUE, "1"))
+                    fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
 //                fprintf(stderr, "Channels = ");
                 int allZeros = 1;
                 for (int idx = 0; idx < 16; idx++) {
@@ -155,11 +184,16 @@ int main() {
         } else {
             int val = 0;
             fscanf(fp, "%d", &val);
-            if (val != 0) {
+            if (val == 0) {
                 fprintf(stderr, "Detected a commanded stop via GPIO_20 and GPIO_61\n");
                 running = 0;
             }
             fclose(fp);
+        }
+        // Read from IMU
+        if (GetOrientation(&imuControl, &sensorReport, &quaternion)) {
+            double levelAngle = QuaternionToLevelAngle(quaternion);
+            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
         }
 	}
 

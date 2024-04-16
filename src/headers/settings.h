@@ -53,6 +53,9 @@
 #define PWMDISPLAYHEIGHT 23
 #define PWMDISPLAYWIDTH 7
 
+// IMU Settings
+#define BNO08XINTTIMEOUTMS 500
+
 // Miscellaneous defines
 #define BUFFERSIZE 256
 
