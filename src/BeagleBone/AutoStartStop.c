@@ -46,12 +46,14 @@ typedef enum {
 // Macros
 #define DebugMessage(filename, message) if (!_DebugMessage(filename, message)) return EXIT_FAILURE
 #define SetGPIO(GPIONum, target, value) if (!_SetGPIO(GPIONum, target, value)) {DebugMessage(debugFileName, "Failed to set GPIO!"); return EXIT_FAILURE;}
+#define GetGPIO(GPIONum, value) if (!_GetGPIO(GPIONum, value)) {DebugMessage(debugFileName, "Failed to get GPIO!"); return EXIT_FAILURE;}
 #define _ToLower(c) (c < 'A' || c > 'Z') ? c : (c - ('A' - 'a'))
 #define ToLower(string) for (int charIndex = 0; charIndex < BUFFERSIZE && string[charIndex] != '\0'; ++charIndex) _ToLower(string[charIndex])
 
 int _DebugMessage(char* filename, char* message);
 int GetCommand(FILE* fp, Command_t* command, char* value);
 int _SetGPIO(int GPIONum, GPIOFile_t target, char* value);
+int _GetGPIO(int GPIONum, char* value);
 
 int main() {
 	// Setup control variables from default settings
@@ -200,7 +202,17 @@ int main() {
 		commandFP = fopen(COMMANDFILENAME, "w");
 		fclose(commandFP);
 		// Check if main software switch is on, and start the main running loop if so
-
+		char mainSwitchVal;
+		GetGPIO(mainSwitchB, &mainSwitchVal);
+		if (mainSwitchVal == '1') {
+			/* The system command returns ONLY AFTER the command is completed, so this will freeze this code here until the main loop is complete
+			*  This is why I log exit conditions here, as the system command therefore only evaluates once the main code exits
+			*/
+			if (0 == system("./luvbeaglebone"))
+				DebugMessage(debugFileName, "Main loop registered a successful exit");
+			else
+				DebugMessage(debugFileName, "Main loop registered an unsuccessful exit");
+		}
 	}
 	
 	// Turn off the running LED
@@ -274,10 +286,26 @@ int _SetGPIO(int GPIONum, GPIOFile_t target, char* value) {
 	}
 	fp = fopen(buffer, "a");
 	if (fp == NULL) return 0;
-	if (fputs(value) == EOF) {
+	if (fputs(value, fp) == EOF) {
 		fclose(fp);
 		return 0;
 	}
+	fclose(fp);
+	return 1;
+}
+int _GetGPIO(int GPIONum, char* value) {
+	FILE* fp = NULL;
+	char buffer[BUFFERSIZE];
+	if (!GetGPIODirectory(GPIONum, buffer)) return 0;
+	if (sprintf(buffer, "%s/%s", buffer, "value") < 1) return 0;
+	fp = fopen(buffer, "r");
+	if (fp == NULL) return 0;
+	char c = fgetc(fp);
+	if (c == EOF) {
+		fclose(fp);
+		return 0;
+	}
+	*value = c;
 	fclose(fp);
 	return 1;
 }
