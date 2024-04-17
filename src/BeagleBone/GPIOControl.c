@@ -9,7 +9,7 @@ int SetGPIO(int GPIONum, GPIOFile_t target, char* value) {
 	FILE* fp = NULL;
 	char buffer[BUFFERSIZE] = {};
 	if (!GetGPIODirectoryFromNum(GPIONum, buffer)) { fprintf(stderr, "Failed to get GPIO directory!\n"); return 0; }
-    fprintf(stderr, "GPIO Directory output: %s\n", buffer);
+    //fprintf(stderr, "GPIO Directory output: %s\n", buffer);
 	switch (target) {
 	case DIRECTION:
         strcat(buffer, "/direction");
@@ -30,7 +30,7 @@ int SetGPIO(int GPIONum, GPIOFile_t target, char* value) {
         fprintf(stderr, "Failed to write to GPIO file!\n");
 		return 0;
 	}
-    fprintf(stderr, "SetGPIO Success\n");
+    //fprintf(stderr, "SetGPIO Success\n");
 	fclose(fp);
 	return 1;
 }

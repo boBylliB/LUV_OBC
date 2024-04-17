@@ -79,6 +79,20 @@ int main() {
         uint64_t delta_ns = (now.tv_sec - prevTime.tv_sec) * 1000000000 + (now.tv_nsec - prevTime.tv_nsec);
         clock_gettime(CLOCK_MONOTONIC_RAW, &prevTime);
         running_ns += delta_ns;
+        
+        FILE* fp = fopen("/sys/class/gpio/gpio65/value","r");
+        if (fp == NULL) {
+            fprintf(stderr, "FATAL ERROR: Cannot read gpio_46!\n");
+            running = 0;
+        } else {
+            int val = 0;
+            fscanf(fp, "%d", &val);
+            if (val == 0) {
+                fprintf(stderr, "Detected a commanded stop via GPIO_20 and GPIO_61\n");
+                running = 0;
+            }
+            fclose(fp);
+        }
 
 		// Get data from IMU (and communicate to RF Transceiver in future)
 		// int IMUPacket = getIMUData();
@@ -135,8 +149,8 @@ int main() {
 			    missedPacketCount++;
                 missedPacketTimer = 0;
                 // Shut off the received packet LED
-                if (!SetGPIO(packetLED, VALUE, "0"))
-                    fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
+                //if (!SetGPIO(packetLED, VALUE, "0"))
+                    //fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
                 if (errno != EAGAIN)
 			        perror("Error in SBUS: ");
                 if (missedPacketCount % 10 == 0)
@@ -177,19 +191,6 @@ int main() {
 //		OutputPWM(&pwm, motorControl);
         //fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
 //        if (running_ns > 10 * (uint64_t)1000000000)
-        FILE* fp = fopen("/sys/class/gpio/gpio65/value","r");
-        if (fp == NULL) {
-            fprintf(stderr, "FATAL ERROR: Cannot read gpio_46!\n");
-            running = 0;
-        } else {
-            int val = 0;
-            fscanf(fp, "%d", &val);
-            if (val == 0) {
-                fprintf(stderr, "Detected a commanded stop via GPIO_20 and GPIO_61\n");
-                running = 0;
-            }
-            fclose(fp);
-        }
         // Read from IMU
         if (GetOrientation(&imuControl, &sensorReport, &quaternion)) {
             double levelAngle = QuaternionToLevelAngle(quaternion);

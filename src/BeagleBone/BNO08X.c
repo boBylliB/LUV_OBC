@@ -119,6 +119,7 @@ uint8_t __init(BNO08x* bno08x, int32_t sensor_id) {
 	// Open SH2 interface (also registers non-sensor event handler.)
 	status = sh2_open(&bno08x->_HAL, hal_callback, NULL);
 	if (status != SH2_OK) {
+        fprintf(stderr, "sh2_open returned not OK\n");
 		return 0;
 	}
 
@@ -126,6 +127,7 @@ uint8_t __init(BNO08x* bno08x, int32_t sensor_id) {
 	memset(&bno08x->prodIds, 0, sizeof(bno08x->prodIds));
 	status = sh2_getProdIds(&bno08x->prodIds);
 	if (status != SH2_OK) {
+        fprintf(stderr, "sh2_getProdIds returned not OK\n");
 		return 0;
 	}
 
@@ -250,6 +252,7 @@ static void spihal_close(sh2_Hal_t* self) {
 static int spihal_read(sh2_Hal_t* self, uint8_t* pBuffer, unsigned len,
 	uint32_t* t_us) {
 	uint16_t packet_size = 0;
+    fprintf(stderr, "spihal_read called!\n");
 
 	if (!spihal_wait_for_int()) {
 		return 0;
@@ -292,6 +295,7 @@ static int spihal_read(sh2_Hal_t* self, uint8_t* pBuffer, unsigned len,
 }
 
 static int spihal_write(sh2_Hal_t* self, uint8_t* pBuffer, unsigned len) {
+    fprintf(stderr, "spihal_write called!\n");
 	if (!spihal_wait_for_int()) {
 		return 0;
 	}
