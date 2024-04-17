@@ -31,6 +31,6 @@ uint8_t wasReset(BNO08x* bno08x);
 uint8_t enableReport(BNO08x* bno08x, sh2_SensorId_t sensor, uint32_t interval_us);
 uint8_t getSensorEvent(BNO08x* bno08x, sh2_SensorValue_t* value);
 
-uint8_t _init(BNO08x* bno08x, int32_t sensor_id);
+uint8_t __init(BNO08x* bno08x, int32_t sensor_id);
 
 #endif

@@ -13,7 +13,7 @@ int GetGPIONumberFromStr(char* pinStr) {
 int GetGPIONumber(int bus, int pin) {
 	if (pin < 1 || pin > 46 || (bus != 8 && bus != 9))
 		return -1;
-	return pinLookup(bus - 8)(pin-1);
+	return pinLookup(bus - 8, pin-1);
 }
 int GetGPIODirectoryFromStr(char* pinStr, char* GPIODir) {
 	int bus = -1;

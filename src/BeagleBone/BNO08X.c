@@ -94,9 +94,9 @@ uint8_t begin_SPI(BNO08x* bno08x, uint8_t cs_pin, uint8_t int_pin, uint8_t rst_p
 	_cs_pin = cs_pin;
 	_reset_pin = rst_pin;
 	// NOTE: Not sure how to set the interrupt pin to be an input pullup, may be an issue, but the datasheet just says its active low
-	if (!SetGPIO(_int_pin, DIRECTION, "in")) return 0;
-	if (!SetGPIO(_cs_pin, DIRECTION, "out")) return 0;
-	if (!SetGPIO(_reset_pin, DIRECTION, "out")) return 0;
+	if (!SetGPIO(_int_pin, DIRECTION, "in")) { fprintf(stderr, "Flag1\n"); return 0; }
+	if (!SetGPIO(_cs_pin, DIRECTION, "out")) { fprintf(stderr, "Flag2\n"); return 0; }
+	if (!SetGPIO(_reset_pin, DIRECTION, "out")) { fprintf(stderr, "Flag3\n"); return 0; }
 	// Set function pointers
 	bno08x->_HAL.open = spihal_open;
 	bno08x->_HAL.close = spihal_close;
@@ -104,14 +104,14 @@ uint8_t begin_SPI(BNO08x* bno08x, uint8_t cs_pin, uint8_t int_pin, uint8_t rst_p
 	bno08x->_HAL.write = spihal_write;
 	bno08x->_HAL.getTimeUs = hal_getTimeUs;
 
-	return _init(bno08x, sensor_id);
+	return __init(bno08x, sensor_id);
 }
 
 /*!  @brief Initializer for post i2c/spi init
  *   @param sensor_id Optional unique ID for the sensor set
  *   @returns 1 if chip identified and initialized
  */
-uint8_t _init(BNO08x* bno08x, int32_t sensor_id) {
+uint8_t __init(BNO08x* bno08x, int32_t sensor_id) {
 	int status;
 
 	hardwareReset();
