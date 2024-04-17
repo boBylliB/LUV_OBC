@@ -1,6 +1,8 @@
 #ifndef SPI_H
 #define SPI_H
 
+#include <stdint.h>
+
 /* SPI
 *
 * Author: Sam Sandelin (4/8/2024)

@@ -4,7 +4,7 @@
 #include "GPIOLookup.h"
 #include "settings.h"
 
-int GetGPIONumber(char* pinStr) {
+int GetGPIONumberFromStr(char* pinStr) {
 	int bus = -1;
 	int pin = -1;
 	pinStringToIndices(pinStr, &bus, &pin);
@@ -15,16 +15,16 @@ int GetGPIONumber(int bus, int pin) {
 		return -1;
 	return PINLOOKUP[bus - 8][pin-1];
 }
-int GetGPIODirectory(char* pinStr, char* GPIODir) {
+int GetGPIODirectoryFromStr(char* pinStr, char* GPIODir) {
 	int bus = -1;
 	int pin = -1;
 	pinStringToIndices(pinStr, &bus, &pin);
 	return GetGPIODirectory(bus, pin, GPIODir);
 }
 int GetGPIODirectory(int bus, int pin, char* GPIODir) {
-	return GetGPIODirectory(GetGPIONumber(bus, pin), GPIODir);
+	return GetGPIODirectoryFromNum(GetGPIONumber(bus, pin), GPIODir);
 }
-int GetGPIODirectory(int GPIONum, char* GPIODir) {
+int GetGPIODirectoryFromNum(int GPIONum, char* GPIODir) {
 	if (GPIONum < 0)
 		return 0;
 	snprintf(GPIODir, BUFFERSIZE, "%s/%s%d", GPIOFOLDER, "gpio", GPIONum);

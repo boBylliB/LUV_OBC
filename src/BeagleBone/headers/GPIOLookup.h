@@ -51,11 +51,11 @@ const int PINLOOKUP[2][46] = {
 };
 
 // External Function Declarations
-int GetGPIONumber(char* pinStr);
+int GetGPIONumberFromStr(char* pinStr);
 int GetGPIONumber(int bus, int pin);
-int GetGPIODirectory(char* pinStr, char* GPIODir);
+int GetGPIODirectoryFromStr(char* pinStr, char* GPIODir);
 int GetGPIODirectory(int bus, int pin, char* GPIODir);
-int GetGPIODirectory(int GPIONum, char* GPIODir);
+int GetGPIODirectoryFromNum(int GPIONum, char* GPIODir);
 // Internal Helper Functions
 void pinStringToIndices(char* pinStr, int* bus, int* pin);
 

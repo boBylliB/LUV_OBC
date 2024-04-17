@@ -47,9 +47,9 @@ uint8_t ReadSPI(SPI_t* spiControl, uint8_t* rx, uint64_t len) {
 		.delay_usecs = delay,
 		.speed_hz = speed,
 		.bits_per_word = bits,
-	}
+	};
 
-	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &spi_message);
+	int ret = ioctl(spiControl->fd, SPI_IOC_MESSAGE(1), &spi_message);
 	if (ret < 1)
 		pabort("can't read from spi");
 	return 1;
@@ -62,9 +62,9 @@ uint8_t WriteSPI(SPI_t* spiControl, uint8_t* tx, uint64_t len) {
 		.delay_usecs = delay,
 		.speed_hz = speed,
 		.bits_per_word = bits,
-	}
+	};
 
-	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &spi_message);
+	int ret = ioctl(spiControl->fd, SPI_IOC_MESSAGE(1), &spi_message);
 	if (ret < 1)
 		pabort("can't write to spi");
 	return 1;

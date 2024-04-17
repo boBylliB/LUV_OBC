@@ -10,11 +10,12 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 uint8_t GetOrientation(BNO08x* imuControl, sh2_SensorValue_t* sensorReport, Quaternion_t* quat) {
 	uint8_t status = 0;
 	if (getSensorEvent(imuControl, sensorReport) && sensorReport->sensorId == SH2_GAME_ROTATION_VECTOR) {
-		sh2_RotationVector_t value = (sh2_RotationVector_t)sensorReport->un;
+		sh2_RotationVector_t value = sensorReport->un.gameRotationVector;
 		quat->w = value.real;
 		quat->x = value.i;
 		quat->y = value.j;
@@ -97,13 +98,13 @@ uint8_t begin_SPI(BNO08x* bno08x, uint8_t cs_pin, uint8_t int_pin, uint8_t rst_p
 	if (!SetGPIO(_cs_pin, DIRECTION, "out")) return 0;
 	if (!SetGPIO(_reset_pin, DIRECTION, "out")) return 0;
 	// Set function pointers
-	bno08x._HAL.open = spihal_open;
-	bno08x._HAL.close = spihal_close;
-	bno08x._HAL.read = spihal_read;
-	bno08x._HAL.write = spihal_write;
-	bno08x._HAL.getTimeUs = hal_getTimeUs;
+	bno08x->_HAL.open = spihal_open;
+	bno08x->_HAL.close = spihal_close;
+	bno08x->_HAL.read = spihal_read;
+	bno08x->_HAL.write = spihal_write;
+	bno08x->_HAL.getTimeUs = hal_getTimeUs;
 
-	return _init(sensor_id);
+	return _init(bno08x, sensor_id);
 }
 
 /*!  @brief Initializer for post i2c/spi init
@@ -116,14 +117,14 @@ uint8_t _init(BNO08x* bno08x, int32_t sensor_id) {
 	hardwareReset();
 
 	// Open SH2 interface (also registers non-sensor event handler.)
-	status = sh2_open(&bno08x._HAL, hal_callback, NULL);
+	status = sh2_open(&bno08x->_HAL, hal_callback, NULL);
 	if (status != SH2_OK) {
 		return 0;
 	}
 
 	// Check connection partially by getting the product id's
-	memset(&bno08x.prodIds, 0, sizeof(bno08x.prodIds));
-	status = sh2_getProdIds(&bno08x.prodIds);
+	memset(&bno08x->prodIds, 0, sizeof(bno08x->prodIds));
+	status = sh2_getProdIds(&bno08x->prodIds);
 	if (status != SH2_OK) {
 		return 0;
 	}
@@ -138,7 +139,7 @@ uint8_t _init(BNO08x* bno08x, int32_t sensor_id) {
  * @brief Reset the device using the Reset pin
  *
  */
-void hardwareReset(BNO08x* bno08x) { hal_hardwareReset(); }
+void hardwareReset() { hal_hardwareReset(); }
 
 /**
  * @brief Check if a reset has occured

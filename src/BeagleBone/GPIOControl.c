@@ -6,14 +6,14 @@
 
 int SetGPIO(int GPIONum, GPIOFile_t target, char* value) {
 	FILE* fp = NULL;
-	char buffer[BUFFERSIZE];
-	if (!GetGPIODirectory(GPIONum, buffer)) return 0;
+	char buffer[BUFFERSIZE] = {};
+	if (!GetGPIODirectoryFromNum(GPIONum, buffer)) return 0;
 	switch (target) {
 	case DIRECTION:
-		if (sprintf(buffer, "%s/%s", buffer, "direction") < 1) return 0;
+		if (snprintf(buffer, BUFFERSIZE, "%s/%s", buffer, "direction") < 1) return 0;
 		break;
 	case VALUE:
-		if (sprintf(buffer, "%s/%s", buffer, "value") < 1) return 0;
+		if (snprintf(buffer, BUFFERSIZE, "%s/%s", buffer, "value") < 1) return 0;
 		break;
 	default:
 		return 0;
@@ -29,9 +29,9 @@ int SetGPIO(int GPIONum, GPIOFile_t target, char* value) {
 }
 int GetGPIO(int GPIONum, uint8_t* value) {
 	FILE* fp = NULL;
-	char buffer[BUFFERSIZE];
-	if (!GetGPIODirectory(GPIONum, buffer)) return 0;
-	if (sprintf(buffer, "%s/%s", buffer, "value") < 1) return 0;
+	char buffer[BUFFERSIZE] = {};
+	if (!GetGPIODirectoryFromNum(GPIONum, buffer)) return 0;
+	if (snprintf(buffer, BUFFERSIZE, "%s/%s", buffer, "value") < 1) return 0;
 	fp = fopen(buffer, "r");
 	if (fp == NULL) return 0;
 	char c = fgetc(fp);
