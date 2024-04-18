@@ -17,7 +17,7 @@
 
 static uint8_t prevIndex = 0;
 UARTRVC_t* UARTRVC_new(int uart_no, int timeout_ms, uint8_t blocking) {
-    int fd = open_uart(uart_no, blocking);
+    int fd = open_uartrvc(uart_no, blocking);
     if (fd < 0) {
         fprintf(stderr, "open_uart fail\n");
         return NULL;
@@ -86,11 +86,11 @@ int UARTRVC_read(UARTRVC_t* uartrvc, Vector_t* orientation, Vector_t* accelerati
         // we have a full packet, now we must decode it.
         uartrvc->buffer_ix = 0;
 
-        return decode_packet(uartrvc->buffer, orientation, acceleration);
+        return decode_uart_packet(uartrvc->buffer, orientation, acceleration);
     }
     else if (count == to_read) {
         // we don't have a full packet but there may still be more to read
-        return uartrvc_read(uartrvc, orientation, acceleration);
+        return UARTRVC_read(uartrvc, orientation, acceleration);
     }
 
     // didn't get a full, valid packet
@@ -98,10 +98,10 @@ int UARTRVC_read(UARTRVC_t* uartrvc, Vector_t* orientation, Vector_t* accelerati
     return -1;
 }
 
-int decode_packet(uint8_t* packet, Vector_t* orientation, Vector_t* acceleration) {
+int decode_uart_packet(uint8_t* packet, Vector_t* orientation, Vector_t* acceleration) {
     uint8_t index = packet[0];
     if (index != prevIndex + 1)
-        fprintf("Decoded UARTRVC index indicates missed packets!\n");
+        fprintf(stderr, "Decoded UARTRVC index indicates missed packets!\n");
     prevIndex = index;
     // Orientation is given in increments of 0.01 degrees, want increments of 1 degree
     orientation->z = (double)((int)packet[2] << 8 + (int)packet[1]) / 100;
@@ -127,7 +127,7 @@ void UARTRVC_close(UARTRVC_t* uartrvc) {
     close(uartrvc->fd);
 }
 
-int open_uart(int uart_no, uint8_t blocking) {
+int open_uartrvc(int uart_no, uint8_t blocking) {
     char tty_dev[256];
     snprintf(tty_dev, 256, "/dev/ttyS%d", uart_no);
     int fd = open(tty_dev, O_RDWR | O_NOCTTY | O_SYNC);
@@ -138,7 +138,7 @@ int open_uart(int uart_no, uint8_t blocking) {
 
     struct termios options;
     struct serial_struct serinfo;
-    int rate = uartrvc_BAUD_RATE;
+    int rate = UARTRVC_BAUD_RATE;
 
     serinfo.reserved_char[0] = 0;
     if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {

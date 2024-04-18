@@ -104,6 +104,18 @@ int main() {
             }
             fclose(fp);
         }
+        // Read from IMU
+        if (spiSuccess && GetOrientation(&imuControl, &sensorReport, &quaternion)) {
+            double levelAngle = QuaternionToLevelAngle(quaternion);
+            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+        }
+        else if (!spiSuccess && UARTRVC_read(uartrvc, &orientation, &acceleration)) {
+            double levelAngle = EulerAnglesToLevelAngle(orientation);
+            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+        }
+        else {
+            fprintf(stderr, "No IMU packet received\n");
+        }
 
 		// Get data from IMU (and communicate to RF Transceiver in future)
 		// int IMUPacket = getIMUData();
@@ -202,18 +214,6 @@ int main() {
 //		OutputPWM(&pwm, motorControl);
         //fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
 //        if (running_ns > 10 * (uint64_t)1000000000)
-        // Read from IMU
-        if (spiSuccess && GetOrientation(&imuControl, &sensorReport, &quaternion)) {
-            double levelAngle = QuaternionToLevelAngle(quaternion);
-            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
-        }
-        else if (!spiSuccess && UARTRVC_read(uartrvc, &orientation, &acceleration)) {
-            double levelAngle = EulerAnglesToLevelAngle(orientation);
-            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
-        }
-        else {
-            fprintf(stderr, "No IMU packet received\n");
-        }
 	}
 
     DisablePWM(&pwm);
