@@ -110,12 +110,13 @@ int main() {
             fprintf(stderr, "Current level angle: %lf\n", levelAngle);
         }
         else if (!spiSuccess && UARTRVC_read(uartrvc, &orientation, &acceleration)) {
-            double levelAngle = EulerAnglesToLevelAngle(orientation);
-            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+            //double levelAngle = EulerAnglesToLevelAngle(orientation);
+            //fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+            fprintf(stderr, "Pitch: %lf, Roll: %lf\n", RADTODEG*orientation.x, RADTODEG*orientation.y);
         }
-        else {
-            fprintf(stderr, "No IMU packet received\n");
-        }
+        //else {
+            //fprintf(stderr, "No IMU packet received\n");
+        //}
 
 		// Get data from IMU (and communicate to RF Transceiver in future)
 		// int IMUPacket = getIMUData();

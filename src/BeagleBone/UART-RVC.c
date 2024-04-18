@@ -1,4 +1,5 @@
 #include "UART-RVC.h"
+#include "settings.h"
 
 #include <fcntl.h>
 #include <linux/serial.h>
@@ -14,6 +15,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <errno.h>
+#include <math.h>
 
 static uint8_t prevIndex = 0;
 UARTRVC_t* UARTRVC_new(int uart_no, int timeout_ms, uint8_t blocking) {
@@ -98,15 +100,24 @@ int UARTRVC_read(UARTRVC_t* uartrvc, Vector_t* orientation, Vector_t* accelerati
     return -1;
 }
 
+uint8_t flipBits(uint8_t byte) {
+    uint8_t temp = 0;
+    uint8_t iterA = 0x01;
+    uint8_t iterB = 0x80;
+    while (iterA < 0x10) {
+        temp = byte & iterA;
+    }
+}
 int decode_uart_packet(uint8_t* packet, Vector_t* orientation, Vector_t* acceleration) {
-    uint8_t index = packet[0];
-    if (index != prevIndex + 1)
-        fprintf(stderr, "Decoded UARTRVC index indicates missed packets!\n");
-    prevIndex = index;
+    //uint8_t index = packet[0];
+    //if (index != prevIndex + 1)
+        //fprintf(stderr, "Decoded UARTRVC index indicates missed packets!\n");
+    //prevIndex = index;
     // Orientation is given in increments of 0.01 degrees, want increments of 1 degree
-    orientation->z = (double)((int)packet[2] << 8 + (int)packet[1]) / 100;
-    orientation->y = (double)((int)packet[4] << 8 + (int)packet[3]) / 100;
-    orientation->x = (double)((int)packet[6] << 8 + (int)packet[5]) / 100;
+    orientation->z = (DEGTORAD)*(double)((int)packet[2] << 8 + (int)packet[1]) / 100;
+    orientation->y = (DEGTORAD)*(double)((int)packet[4] << 8 + (int)packet[3]) / 100;
+    orientation->x = (DEGTORAD)*(double)((int)packet[6] << 8 + (int)packet[5]) / 100;
+    fprintf(stderr, "Unfiltered X: 0x%X%X\n", packet[6], packet[5]);
     // Acceleration is given in mg, want m/s^2
     acceleration->z = 9.81 * (double)((int)packet[8] << 8 + (int)packet[7]) / 1000000;
     acceleration->y = 9.81 * (double)((int)packet[10] << 8 + (int)packet[9]) / 1000000;
@@ -118,7 +129,7 @@ int decode_uart_packet(uint8_t* packet, Vector_t* orientation, Vector_t* acceler
     if (checksum == packet[16])
         return 0;
     else {
-        fprintf(stderr, "Read invalid checksum!\n");
+        //fprintf(stderr, "Read invalid checksum!\n");
         return -1;
     }
 }
