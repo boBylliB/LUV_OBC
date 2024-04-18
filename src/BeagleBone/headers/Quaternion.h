@@ -24,5 +24,6 @@ typedef struct {
 
 Vector_t QuaternionToEulerAngles(Quaternion_t quat);
 double QuaternionToLevelAngle(Quaternion_t quat);
+double EulerAnglesToLevelAngle(Vector_t eulerAngles);
 
 #endif

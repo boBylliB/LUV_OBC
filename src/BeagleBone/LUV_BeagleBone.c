@@ -15,6 +15,7 @@
 #include "GPIOLookup.h"
 #include "GPIOControl.h"
 #include "Quaternion.h"
+#include "UART-RVC.h"
 
 int main() {
 	// int lastUSCommand = 0;
@@ -45,16 +46,26 @@ int main() {
     BNO08x imuControl;
     sh2_SensorValue_t sensorReport;
     Quaternion_t quaternion;
+    Vector_t orientation;
+    Vector_t acceleration;
+    uint8_t spiSuccess = 1;
+    UARTRVC_t* uartrvc = NULL;
     if (0 != system("config-pin P9_15 gpio"))
         fprintf(stderr, "Failed to set pin P9_15 as gpio!\n");
     if (0 != system("config-pin P9_23 gpio"))
         fprintf(stderr, "Failed to set pin P9_23 as gpio!\n");
     if (0 != system("config-pin P9_19 gpio"))
         fprintf(stderr, "Failed to set pin P9_19 as gpio!\n");
-    if (!begin_SPI(&imuControl, GetGPIONumber(9, 23), GetGPIONumber(9, 19), GetGPIONumber(9, 15), 0))
-        fprintf(stderr, "Failed to begin SPI!\n");
-    if (!enableReport(&imuControl, 0x08, 10000))
-        fprintf(stderr, "Failed to enable the Game Rotation Vector report!\n");
+    if (!begin_SPI(&imuControl, GetGPIONumber(9, 23), GetGPIONumber(9, 19), GetGPIONumber(9, 15), 0)) {
+        fprintf(stderr, "Failed to begin SPI! Falling back to UART-RVC\n");
+        spiSuccess = 0;
+    }
+    else if (!enableReport(&imuControl, 0x08, 10000)) {
+        fprintf(stderr, "Failed to enable the Game Rotation Vector report! Falling back to UART-RVC\n");
+        spiSuccess = 0;
+    }
+    if (!spiSuccess)
+        uartrvc = UARTRVC_new(IMUFALLBACKUART, SBUSTIMEOUT, 0);
 
     //if (0 != system("config-pin P9_12 gpio"))
         //fprintf(stderr, "Failed to set pin P9_12 as gpio!\n");
@@ -192,8 +203,12 @@ int main() {
         //fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
 //        if (running_ns > 10 * (uint64_t)1000000000)
         // Read from IMU
-        if (GetOrientation(&imuControl, &sensorReport, &quaternion)) {
+        if (spiSuccess && GetOrientation(&imuControl, &sensorReport, &quaternion)) {
             double levelAngle = QuaternionToLevelAngle(quaternion);
+            fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+        }
+        else if (!spiSuccess && UARTRVC_read(uartrvc, &orientation, &acceleration)) {
+            double levelAngle = EulerAnglesToLevelAngle(orientation);
             fprintf(stderr, "Current level angle: %lf\n", levelAngle);
         }
         else {

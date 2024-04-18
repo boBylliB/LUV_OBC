@@ -55,6 +55,7 @@
 
 // IMU Settings
 #define BNO08XINTTIMEOUTMS 500
+#define IMUFALLBACKUART 1
 
 // Miscellaneous defines
 #define BUFFERSIZE 256

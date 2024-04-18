@@ -24,3 +24,6 @@ double QuaternionToLevelAngle(Quaternion_t quat) {
 	// All we have to do is take the inverse cosine of that value to get the actual angle
 	return acos(quat.w * quat.w - quat.x * quat.x - quat.y * quat.y + quat.z * quat.z);
 }
+double EulerAnglesToLevelAngle(Vector_t eulerAngles) {
+	return acos(cos(eulerAngles.y) * cos(eulerAngles.x));
+}
