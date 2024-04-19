@@ -67,13 +67,55 @@ int main() {
     if (!spiSuccess)
         uartrvc = UARTRVC_new(IMUFALLBACKUART, SBUSTIMEOUT, 0);
 
-    //if (0 != system("config-pin P9_12 gpio"))
-        //fprintf(stderr, "Failed to set pin P9_12 as gpio!\n");
-    //uint8_t packetLED = -1;
-    //if (!GetGPIONumber(9, 12))
-        //fprintf(stderr, "Failed to get GPIO number for P9_12!\n");
-    //if (!SetGPIO(packetLED, DIRECTION, "out"))
-        //fprintf(stderr, "Failed to set GPIO direction for P9_12!\n");
+    if (0 != system("config-pin P9_12 gpio"))
+        fprintf(stderr, "Failed to set pin P9_12 as gpio!\n");
+    uint8_t packetLED = -1;
+    if (!GetGPIONumber(9, 12))
+        fprintf(stderr, "Failed to get GPIO number for P9_12!\n");
+    if (!SetGPIO(packetLED, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P9_12!\n");
+
+    if (0 != system("config-pin P8_41 gpio"))
+        fprintf(stderr, "Failed to set pin P8_41 as gpio!\n");
+    uint8_t imuLED = -1;
+    if (!GetGPIONumber(8, 41))
+        fprintf(stderr, "Failed to get GPIO number for P8_41!\n");
+    if (!SetGPIO(imuLED, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P8_41!\n");
+
+
+    if (0 != system("config-pin P8_40 gpio"))
+        fprintf(stderr, "Failed to set pin P8_40 as gpio!\n");
+    uint8_t motorLiveSwitchPower = 0;
+    if (!GetGPIONumber(8, 40))
+        fprintf(stderr, "Failed to get GPIO number for P8_40!\n");
+    if (!SetGPIO(motorLiveSwitchPower, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P8_40!\n");
+    if (!SetGPIO(motorLiveSwitchPower, VALUE, "1"))
+        fprintf(stderr, "Failed to set GPIO value for P8_40!\n");
+    if (0 != system("config-pin P8_44 gpio"))
+        fprintf(stderr, "Failed to set pin P8_44 as gpio!\n");
+    uint8_t motorLiveSwitchInput = 0;
+    uint8_t motorLiveSwitchVal = 0;
+    if (!GetGPIONumber(8, 44))
+        fprintf(stderr, "Failed to get GPIO number for P8_44!\n");
+    if (!SetGPIO(motorLiveSwitchInput, DIRECTION, "in"))
+        fprintf(stderr, "Failed to set GPIO direction for P8_44!\n");
+    if (0 != system("config-pin P8_43 gpio"))
+        fprintf(stderr, "Failed to set pin P8_43 as gpio!\n");
+    uint8_t motorLiveLED = -1;
+    if (!GetGPIONumber(8, 43))
+        fprintf(stderr, "Failed to get GPIO number for P8_43!\n");
+    if (!SetGPIO(motorLiveLED, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P8_43!\n");
+
+    if (0 != system("config-pin P8_39 gpio"))
+        fprintf(stderr, "Failed to set pin P8_39 as gpio!\n");
+    uint8_t sbusIssueLED = -1;
+    if (!GetGPIONumber(8, 39))
+        fprintf(stderr, "Failed to get GPIO number for P8_39!\n");
+    if (!SetGPIO(sbusIssueLED, DIRECTION, "out"))
+        fprintf(stderr, "Failed to set GPIO direction for P8_39!\n");
 
     // Setup loop shutoff
     if (0 != system("config-pin P9_41 gpio"))
@@ -108,15 +150,24 @@ int main() {
         if (spiSuccess && GetOrientation(&imuControl, &sensorReport, &quaternion)) {
             double levelAngle = QuaternionToLevelAngle(quaternion);
             fprintf(stderr, "Current level angle: %lf\n", levelAngle);
+            // Light the received IMU LED
+            if (!SetGPIO(imuLED, VALUE, "1"))
+                fprintf(stderr, "Failed to set GPIO value for P8_41!\n");
         }
         else if (!spiSuccess && UARTRVC_read(uartrvc, &orientation, &acceleration)) {
             //double levelAngle = EulerAnglesToLevelAngle(orientation);
             //fprintf(stderr, "Current level angle: %lf\n", levelAngle);
             fprintf(stderr, "Pitch: %lf, Roll: %lf\n", RADTODEG*orientation.x, RADTODEG*orientation.y);
+            // Light the received IMU LED
+            if (!SetGPIO(imuLED, VALUE, "1"))
+                fprintf(stderr, "Failed to set GPIO value for P8_41!\n");
         }
-        //else {
+        else {
+            // Shut off the received IMU LED
+            if (!SetGPIO(imuLED, VALUE, "0"))
+                fprintf(stderr, "Failed to set GPIO value for P8_41!\n");
             //fprintf(stderr, "No IMU packet received\n");
-        //}
+        }
 
 		// Get data from IMU (and communicate to RF Transceiver in future)
 		// int IMUPacket = getIMUData();
@@ -146,6 +197,9 @@ int main() {
 		if (missedPacketCount > SBUSMAXMISSEDPACKETS) {
             // TODO: change force stop to attempt sbus restart
 			fprintf(stderr, "FATAL ERROR: Missed %d packets in a row, greater than the %d allowed!\n", missedPacketCount, SBUSMAXMISSEDPACKETS);
+            // Light the sbus issue LED
+            if (!SetGPIO(sbusIssueLED, VALUE, "1"))
+                fprintf(stderr, "Failed to set GPIO value for P8_39!\n");
 			// Force stop motors until SBUS restarts
 			motorControl[0] = 0;
 			motorControl[1] = 0;
@@ -173,8 +227,8 @@ int main() {
 			    missedPacketCount++;
                 missedPacketTimer = 0;
                 // Shut off the received packet LED
-                //if (!SetGPIO(packetLED, VALUE, "0"))
-                    //fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
+                if (!SetGPIO(packetLED, VALUE, "0"))
+                    fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
                 if (errno != EAGAIN)
 			        perror("Error in SBUS: ");
                 if (missedPacketCount % 10 == 0)
@@ -184,8 +238,11 @@ int main() {
 		    else {
 			    missedPacketCount = 0;
                 // Light the received packet LED
-                //if (!SetGPIO(packetLED, VALUE, "1"))
-                    //fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
+                if (!SetGPIO(packetLED, VALUE, "1"))
+                    fprintf(stderr, "Failed to set GPIO value for P9_12!\n");
+                // Shut off the sbus issue LED
+                if (!SetGPIO(sbusIssueLED, VALUE, "0"))
+                    fprintf(stderr, "Failed to set GPIO value for P8_39!\n");
 //                fprintf(stderr, "Channels = ");
                 int allZeros = 1;
                 for (int idx = 0; idx < 16; idx++) {
@@ -212,7 +269,20 @@ int main() {
 		// Output PWM to motors
         /*motorControl[0] = (time(NULL) - startTime) % 2;
         motorControl[1] = (time(NULL) - startTime + 1) % 2;*/
-//		OutputPWM(&pwm, motorControl);
+        if (!GetGPIO(motorLiveSwitchInput, &motorLiveSwitchVal)) {
+            fprintf(stderr, "Failed to get motor live switch value!\n");
+            // Default to motors disabled for safety
+            motorLiveSwitchVal = 0;
+        }
+        if (!motorLiveSwitchVal) {
+            motorControl[0] = 0;
+            motorControl[1] = 0;
+            if (!SetGPIO(motorLiveLED, VALUE, "0"))
+                fprintf(stderr, "Failed to set GPIO value for P8_43!\n");
+        }
+        else if (!SetGPIO(motorLiveLED, VALUE, "1"))
+            fprintf(stderr, "Failed to set GPIO value for P8_43!\n");
+        OutputPWM(&pwm, motorControl);
         //fprintf(stderr, "Motor Control = %f, %f\n",motorControl[0],motorControl[1]);
 //        if (running_ns > 10 * (uint64_t)1000000000)
 	}
