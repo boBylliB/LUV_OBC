@@ -100,15 +100,22 @@ int UARTRVC_read(UARTRVC_t* uartrvc, Vector_t* orientation, Vector_t* accelerati
     return -1;
 }
 
-uint8_t flipBits(uint8_t byte) {
-    uint8_t temp = 0;
-    uint8_t iterA = 0x01;
-    uint8_t iterB = 0x80;
-    while (iterA < 0x10) {
-        temp = byte & iterA;
+uint8_t flipBits(uint8_t b) {
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+    return b;
+}
+void flipPacket(uint8_t* packet) {
+    uint8_t temp;
+    for (int idx = 0; idx < 8; ++idx) {
+        temp = flipBits(packet[idx]);
+        packet[idx] = flipBits(packet[16 - idx]);
+        packet[16 - idx] = temp;
     }
 }
 int decode_uart_packet(uint8_t* packet, Vector_t* orientation, Vector_t* acceleration) {
+    // flipPacket(packet);
     //uint8_t index = packet[0];
     //if (index != prevIndex + 1)
         //fprintf(stderr, "Decoded UARTRVC index indicates missed packets!\n");
